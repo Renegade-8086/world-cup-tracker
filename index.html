@@ -976,12 +976,15 @@
         function getApiKey(p)  { return localStorage.getItem('wctracker_key_' + p) || ''; }
 
         // ── fetch_matches() — single public entry point ────────────────────────
-        async function fetch_matches() {
+        // force=true bypasses cache entirely (used when user clicks Sync button)
+        async function fetch_matches(force = false) {
             const provider = getProvider();
-            const cache = _getApiCache(provider);
-            const hasLive = cache?.data?.some(m => m.status === 'live');
-            const ttl = hasLive ? 90_000 : 300_000; // 90 s if live, 5 min otherwise
-            if (cache && (Date.now() - cache.ts) < ttl) return cache.data;
+            if (!force) {
+                const cache = _getApiCache(provider);
+                const hasLive = cache?.data?.some(m => m.status === 'live');
+                const ttl = hasLive ? 90_000 : 300_000; // 90 s if live, 5 min otherwise
+                if (cache && (Date.now() - cache.ts) < ttl) return cache.data;
+            }
 
             let matches;
             switch (provider) {
@@ -1231,7 +1234,7 @@
             const btn = document.getElementById('btn-sync-api');
             if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Syncing…'; }
             try {
-                const matches = await fetch_matches();
+                const matches = await fetch_matches(true); // always fresh on manual sync
                 const count   = applyFetchedScores(matches);
                 saveScoresToStorage();
                 renderGroups();
