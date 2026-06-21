@@ -45,13 +45,21 @@ Simply visit the GitHub Pages link generated for this repository:
 ## 🔄 Resetting Data
 If your predictions go completely off the rails or you want to start a brand new simulation, simply click the **🔄 Reset Tournament** button in the header to safely wipe the cache and refresh the bracket.
 
-## 📊 Current Tournament Scores (Up to Date!)
+## 📊 How to Sync Current Tournament Scores
 
-Want to skip manually typing in the scores of the matches that have already been played? 
+Don't want to manually type in the scores for matches that have already been played? You can instantly sync your bracket with real-world results up to today!
 
-1. 1. Click this link to download: <a href="https://Renegade-8086.github.io/world-cup-tracker/current_scores.txt" download="current_scores.json">Download Current Scores File</a>
-2. Open the live tracker app link.
-3. Click the **📤 Import Data** button in the header.
-4. Select the `current_scores.json` file you just downloaded. 
+### If you are using the Live Website Link:
+1. Open the live tracker app link in your browser.
+2. In the top header, click the blue **📥 Get Today's Scores** button. This will instantly download the official data file (`current_scores.json`) to your device.
+3. Click the green **📤 Import Data File** button right next to it.
+4. Select the `current_scores.json` file you just downloaded.
 
-*Boom! Your bracket will instantly sync up with all real-world scores up to today.*
+### If you are running the project locally (Offline/Desktop):
+1. Make sure you have downloaded both `index.html` and `current_scores.json` into the exact same folder on your computer.
+2. Open `index.html` to launch the app.
+3. Click the blue **📥 Get Today's Scores** button.
+4. When the app detects you are running locally, it will display a pop-up prompt. Click **OK**.
+5. Select the `current_scores.json` file sitting inside your local folder.
+
+*Boom! Your tournament tracker will instantly calculate the current standings and automatically unlock the correct knockout matchups based on real-world results.*
