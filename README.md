@@ -49,7 +49,7 @@ If your predictions go completely off the rails or you want to start a brand new
 
 Want to skip manually typing in the scores of the matches that have already been played? 
 
-1. 1. Click this link to download: <a href="https://YOUR-USERNAME.github.io/YOUR-REPOSITORY-NAME/current_scores.txt" download="current_scores.json">Download Current Scores File</a>
+1. 1. Click this link to download: <a href="https://Renegade-8086.github.io/world-cup-tracker/current_scores.txt" download="current_scores.json">Download Current Scores File</a>
 2. Open the live tracker app link.
 3. Click the **📤 Import Data** button in the header.
 4. Select the `current_scores.json` file you just downloaded. 
