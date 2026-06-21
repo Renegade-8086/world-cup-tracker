@@ -135,6 +135,9 @@
         .wildcard-select { width: 100%; font-size: 0.75rem; padding: 1px; }
 
         .champ-box { background: linear-gradient(135deg, #ffe066, #f5b041); text-align: center; padding: 12px; border-radius: 6px; border: 2px solid #d4ac0d; align-self: center; }
+        
+        .header-controls { margin-top: 12px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+        .header-controls button { color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 4px; }
     </style>
 </head>
 <body>
@@ -142,12 +145,12 @@
 <header>
     <h1>🏆 FIFA World Cup 2026 Live Bracket</h1>
     <p>Official 48-Team Format (A-L) • Auto-Saves to Device Storage</p>
-    <div style="margin-top: 10px; display: flex; gap: 10px; justify-content: center;">
-        <button class="clear-btn" style="position:static;" onclick="resetAllData()">🔄 Reset Tournament</button>
-        <button onclick="exportTournamentData()" style="background:#0056b3; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:0.8rem;">📥 Export Data</button>
-        <button onclick="importTournamentData()" style="background:#28a745; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:0.8rem;">📤 Import Data</button>
+    <div class="header-controls">
+        <button style="background: #dc3545;" onclick="resetAllData()">🔄 Reset</button>
+        <button style="background: #17a2b8;" onclick="downloadRepositoryScores()">📥 Get Today's Scores</button>
+        <button style="background: #0056b3;" onclick="exportTournamentData()">💾 Export My Progress</button>
+        <button style="background: #28a745;" onclick="importTournamentData()">📤 Import Data File</button>
     </div>
-
 </header>
 
 <div class="container">
@@ -238,7 +241,6 @@
     let selectedWildcards = { m74: "", m77: "", m79: "", m80: "" };
 
     function initDataStructures() {
-        // Build clear references
         for (const key in groupsData) {
             const t = groupsData[key].teams;
             fixtures[key] = [
@@ -294,12 +296,11 @@
     }
 
     function resetAllData() {
-        if(confirm("Are you sure you want to clear all entered scores and reset the tournament?")) {
+        if(confirm("Wipe entered progress and reset?")) {
             localStorage.clear();
             loadFromLocalStorage();
             renderGroups();
             updateCalculations();
-            // Force reset explicit input elements
             document.querySelectorAll('.score-input').forEach(input => input.value = '');
         }
     }
@@ -495,44 +496,77 @@
         if (champDisplay) champDisplay.innerText = finalWinner ? finalWinner : "???";
     }
 
-function exportTournamentData() {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(localStorage));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", "world_cup_bracket_save.json");
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-}
+    function exportTournamentData() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(localStorage));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", "world_cup_bracket_save.json");
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    }
 
-function importTournamentData() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    
-    input.onchange = e => {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-        reader.readAsText(file, 'UTF-8');
-        
-        reader.onload = readerEvent => {
-            try {
-                const parsedData = JSON.parse(readerEvent.target.result);
-                // Loop through and restore only the tournament keys
-                for (const key in parsedData) {
-                    if (key.startsWith('wc2026_')) {
-                        localStorage.setItem(key, parsedData[key]);
-                    }
-                }
-                alert("Data imported successfully! Reloading page...");
-                location.reload();
-            } catch (error) {
-                alert("Invalid save file.");
-            }
+    function downloadRepositoryScores() {
+        // If running from a local file layout (file:// protocol), fetch commands typically fail due to security blocks.
+        // We catch that immediately and switch to the local directory upload fallback.
+        if (window.location.protocol === 'file:') {
+            handleLocalFallback("Running locally via file:// structure.");
+            return;
+        }
+
+        fetch('./current_scores.json')
+            .then(response => {
+                if(!response.ok) throw new Error("File missing on server.");
+                return response.json();
+            })
+            .then(data => {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+                const downloadAnchor = document.createElement('a');
+                downloadAnchor.setAttribute("href", dataStr);
+                downloadAnchor.setAttribute("download", "current_scores.json");
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                downloadAnchor.remove();
+            })
+            .catch(err => {
+                handleLocalFallback(err.message);
+            });
+    }
+
+    function handleLocalFallback(reason) {
+        console.log("Fallback triggered: " + reason);
+        if(confirm("Could not reach the online data file (or you are running this app completely offline).\n\nWould you like to manually choose the 'current_scores.json' file directly from your local folder path instead?")) {
+            importTournamentData();
         }
     }
-    input.click();
-}
+
+    function importTournamentData() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        
+        input.onchange = e => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.readAsText(file, 'UTF-8');
+            
+            reader.onload = readerEvent => {
+                try {
+                    const parsedData = JSON.parse(readerEvent.target.result);
+                    for (const key in parsedData) {
+                        if (key.startsWith('wc2026_')) {
+                            localStorage.setItem(key, parsedData[key]);
+                        }
+                    }
+                    alert("Scores imported successfully! Reloading...");
+                    location.reload();
+                } catch (error) {
+                    alert("Invalid JSON file layout.");
+                }
+            }
+        }
+        input.click();
+    }
 
     window.onload = () => {
         loadFromLocalStorage();
