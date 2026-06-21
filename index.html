@@ -160,6 +160,82 @@
         #btn-theme { transition: background .2s, color .2s; }
         :root.light #btn-theme { background: #f1f5f9 !important; color: #475569 !important; border-color: #e2e8f0 !important; }
 
+        /* ── Group Fixtures ── */
+        .fx-card { background:var(--gc-card-bg); border:1px solid var(--gc-card-border); border-radius:12px; padding:14px; display:flex; flex-direction:column; transition:border-color .15s, box-shadow .15s; }
+        .fx-card:hover { box-shadow:0 4px 16px rgba(0,0,0,.2); }
+        :root.light .fx-card:hover { box-shadow:0 4px 16px rgba(0,0,0,.07); }
+        .fx-card-today  { border-color:rgba(16,185,129,.35); }
+        .fx-card-future { border-color:rgba(96,165,250,.2); }
+        :root.light .fx-card-today  { border-color:rgba(5,150,105,.35); }
+        :root.light .fx-card-future { border-color:rgba(59,130,246,.25); }
+        .fx-hdr { display:flex; align-items:center; justify-content:space-between; padding-bottom:10px; margin-bottom:12px; border-bottom:1px solid var(--gc-row-border); }
+        .fx-round { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#f59e0b; }
+        :root.light .fx-round { color:#b45309; }
+        .fx-time-badge { font-size:10px; font-family:ui-monospace,monospace; color:var(--gc-num); background:var(--gc-prog-track); padding:2px 7px; border-radius:5px; }
+        .fx-team-name { font-size:13px; font-weight:600; color:var(--gc-name); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .fx-score-input { width:44px; height:36px; flex-shrink:0; background:var(--gc-prog-track); border:1.5px solid var(--gc-card-border); border-radius:8px; text-align:center; font-weight:800; font-size:15px; color:var(--gc-pts); outline:none; font-family:ui-monospace,monospace; transition:border-color .15s; }
+        .fx-score-input:focus { border-color:var(--gc-pts); }
+        .fx-footer { display:flex; align-items:center; justify-content:space-between; margin-top:12px; padding-top:8px; border-top:1px solid var(--gc-row-border); }
+        .fx-venue { font-size:10px; color:var(--gc-gd-neu); }
+        .fx-group { font-size:10px; font-weight:700; color:var(--gc-col-text); }
+        .fx-date-sep { display:flex; align-items:center; gap:8px; padding:18px 0 10px; }
+        .fx-date-sep.first-sep { padding-top:0; }
+        .fx-date-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+        .fx-date-label { font-size:10px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+        .fx-date-today  { color:#34d399; } .fx-date-future { color:#60a5fa; } .fx-date-past { color:var(--gc-gd-neu); }
+        :root.light .fx-date-today  { color:#059669; } :root.light .fx-date-future { color:#3b82f6; }
+        .fx-date-line { flex:1; height:1px; background:var(--gc-row-border); }
+        .fx-no-data { text-align:center; padding:48px 16px; color:var(--gc-gd-neu); font-size:13px; line-height:1.6; }
+
+        /* ── Knockout Bracket ── */
+        .ko-round-lbl { text-align:center; padding:7px 4px; font-size:10px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:#f59e0b; background:var(--gc-col-hdr-bg); border:1px solid var(--gc-card-border); border-radius:8px; }
+        .ko-round-lbl-final { color:var(--gc-letter); background:linear-gradient(135deg,rgba(251,191,36,.12),rgba(249,115,22,.08)); border-color:rgba(251,191,36,.4); }
+        :root.light .ko-round-lbl { color:#b45309; } :root.light .ko-round-lbl-final { color:#d97706; }
+        .ko-compact { height:100%; background:var(--gc-card-bg); border:1px solid var(--gc-card-border); border-radius:8px; display:flex; flex-direction:column; justify-content:space-between; overflow:hidden; padding:4px 7px; transition:border-color .15s; }
+        .ko-compact:hover { border-color:var(--gc-q1-bar); }
+        .ko-std { height:100%; background:var(--gc-card-bg); border:1px solid var(--gc-card-border); border-radius:10px; display:flex; flex-direction:column; justify-content:space-between; overflow:hidden; transition:border-color .15s; }
+        .ko-std:hover { border-color:var(--gc-q1-bar); }
+        .ko-final { border-color:rgba(251,191,36,.5); } .ko-final:hover { border-color:var(--gc-letter); }
+        .ko-third { border-color:rgba(167,139,250,.4); } .ko-third:hover { border-color:#a78bfa; }
+        :root.light .ko-final { border-color:rgba(217,119,6,.4); } :root.light .ko-third { border-color:rgba(124,58,237,.35); }
+        .ko-meta { display:flex; justify-content:space-between; font-size:9px; font-family:ui-monospace,monospace; margin-bottom:3px; }
+        .ko-num { color:#f59e0b; font-weight:700; } :root.light .ko-num { color:#b45309; }
+        .ko-date { color:var(--gc-gd-neu); }
+        .ko-team-row-c { display:flex; align-items:center; justify-content:space-between; gap:4px; }
+        .ko-lbl-c { font-size:10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--gc-name); font-weight:500; }
+        .ko-lbl-pending { color:var(--gc-gd-neu); font-style:italic; font-weight:400; }
+        .ko-input-c { width:26px; height:20px; flex-shrink:0; background:var(--gc-prog-track); border:1px solid var(--gc-card-border); border-radius:4px; text-align:center; font-weight:800; font-size:10px; color:var(--gc-pts); outline:none; font-family:ui-monospace,monospace; transition:border-color .15s; }
+        .ko-input-c:focus { border-color:var(--gc-pts); }
+        .ko-body { flex:1; display:flex; flex-direction:column; justify-content:space-between; }
+        .ko-card-title { display:flex; align-items:center; justify-content:space-between; }
+        .ko-title-normal { color:#f59e0b; font-size:11px; font-weight:800; } :root.light .ko-title-normal { color:#b45309; }
+        .ko-title-final  { color:var(--gc-letter); font-size:11px; font-weight:800; }
+        .ko-title-third  { color:#a78bfa; font-size:11px; font-weight:800; } :root.light .ko-title-third { color:#7c3aed; }
+        .ko-card-date { font-size:9px; color:var(--gc-gd-neu); font-family:ui-monospace,monospace; }
+        .ko-team-row-s { display:flex; align-items:center; justify-content:space-between; gap:6px; }
+        .ko-lbl-s { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--gc-name); font-weight:600; }
+        .ko-input-s { flex-shrink:0; background:var(--gc-prog-track); border:1.5px solid var(--gc-card-border); border-radius:6px; text-align:center; font-weight:800; color:var(--gc-pts); outline:none; font-family:ui-monospace,monospace; transition:border-color .15s; }
+        .ko-input-s:focus { border-color:var(--gc-pts); }
+        .ko-footer { font-size:9px; color:var(--gc-gd-neu); font-family:ui-monospace,monospace; border-top:1px solid var(--gc-row-border); }
+
+        /* ── Stats ── */
+        .st-card { background:var(--gc-card-bg); border:1px solid var(--gc-card-border); border-radius:12px; padding:20px; }
+        .st-card-title { display:flex; align-items:center; gap:8px; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--gc-col-text); padding-bottom:14px; border-bottom:1px solid var(--gc-col-hdr-border); margin-bottom:0; }
+        .st-table { width:100%; border-collapse:collapse; }
+        .st-th { padding:8px 6px 7px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--gc-col-text); border-bottom:1px solid var(--gc-col-hdr-border); text-align:right; white-space:nowrap; }
+        .st-th:first-child,.st-th:nth-child(2) { text-align:left; }
+        .st-td { padding:8px 6px; font-size:12px; color:var(--gc-name); border-bottom:1px solid var(--gc-row-border); vertical-align:middle; }
+        .st-tr:last-child .st-td { border-bottom:none; }
+        .st-tr:hover .st-td { background:var(--gc-row-hover); }
+        .st-rank { font-size:10px; font-family:ui-monospace,monospace; color:var(--gc-gd-neu); }
+        .st-gold { font-size:14px; font-weight:800; color:var(--gc-pts); text-align:right; }
+        .st-blue { font-size:14px; font-weight:800; color:#38bdf8; text-align:right; } :root.light .st-blue { color:#0284c7; }
+        .st-muted { font-size:11px; color:var(--gc-gd-neu); text-align:right; }
+        .st-sec  { font-size:12px; color:var(--gc-num); text-align:right; }
+        .st-no-data { text-align:center; padding:40px 16px; color:var(--gc-gd-neu); }
+        .st-no-data i { font-size:32px; opacity:.25; display:block; margin-bottom:12px; }
+        .st-no-data p { font-size:13px; line-height:1.5; }
+
         .bracket-connector {
             position: relative;
         }
@@ -232,11 +308,11 @@
         <!-- Tab 2: Group Fixtures -->
         <div id="view-schedule" class="hidden">
             <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-                <h2 class="text-xl font-bold flex items-center gap-2 text-amber-400">
+                <h2 class="fx-tab-title text-xl font-bold flex items-center gap-2">
                     <i class="fa-solid fa-circle-play text-sm"></i> Group Stage Fixtures
                 </h2>
                 <label class="flex items-center gap-3 cursor-pointer select-none group" title="Toggle to reveal upcoming fixtures">
-                    <span class="text-sm text-gray-400 group-hover:text-gray-200 transition-colors">Show all fixtures including future</span>
+                    <span class="fx-toggle-label text-sm">Show all fixtures including future</span>
                     <div class="relative flex-shrink-0">
                         <input type="checkbox" id="toggle-fixtures" class="sr-only peer" onchange="toggleFixtureView(this.checked)">
                         <div class="w-10 h-5 bg-gray-700 peer-checked:bg-yellow-500 rounded-full transition-colors duration-200"></div>
@@ -250,8 +326,8 @@
         <!-- Tab 3: Knockout Bracket -->
         <div id="view-knockout" class="hidden">
             <div class="flex items-center justify-between mb-4">
-                <p class="text-xs text-gray-500">Teams resolved from current group standings. Pending slots shown in <span class="italic text-gray-400">italics</span>. 3rd-place slots use provisional best-fit assignment.</p>
-                <button onclick="renderKnockout()" class="flex items-center gap-2 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-xs font-semibold border border-gray-700 transition-all">
+                <p style="font-size:11px;color:var(--gc-gd-neu);">Teams resolved from current group standings. Pending slots shown in <span style="font-style:italic;color:var(--gc-num);">italics</span>. 3rd-place slots use provisional best-fit assignment.</p>
+                <button onclick="renderKnockout()" style="display:flex;align-items:center;gap:6px;padding:5px 10px;background:var(--gc-col-hdr-bg);border:1px solid var(--gc-card-border);color:var(--gc-name);border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;flex-shrink:0;margin-left:12px;" onmouseover="this.style.borderColor='var(--gc-q1-bar)'" onmouseout="this.style.borderColor='var(--gc-card-border)'">
                     <i class="fa-solid fa-rotate-right"></i> Refresh Bracket
                 </button>
             </div>
@@ -261,21 +337,21 @@
         <!-- Tab 4: Stats -->
         <div id="view-stats" class="hidden">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold flex items-center gap-2 text-amber-400">
+                <h2 class="fx-tab-title text-xl font-bold flex items-center gap-2">
                     <i class="fa-solid fa-chart-bar text-sm"></i> Tournament Stats
                 </h2>
-                <span class="text-xs text-gray-500">Data sourced via <span id="stats-provider-label" class="text-gray-400 font-medium">—</span>. Goal events available from ESPN only.</span>
+                <span style="font-size:11px;color:var(--gc-gd-neu);">Data sourced via <span id="stats-provider-label" style="color:var(--gc-name);font-weight:600;">—</span>. Goal events available from ESPN only.</span>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
-                    <h3 class="text-sm font-bold text-gray-300 uppercase tracking-wide mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-futbol text-yellow-400"></i> Top Scorers
+                <div class="st-card">
+                    <h3 class="st-card-title">
+                        <i class="fa-solid fa-futbol" style="color:var(--gc-pts);"></i> Top Scorers
                     </h3>
                     <div id="stats-scorers"></div>
                 </div>
-                <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
-                    <h3 class="text-sm font-bold text-gray-300 uppercase tracking-wide mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-hands text-sky-400"></i> Best Keepers (by saves)
+                <div class="st-card">
+                    <h3 class="st-card-title">
+                        <i class="fa-solid fa-hands" style="color:#38bdf8;"></i> Best Keepers (by saves)
                     </h3>
                     <div id="stats-keepers"></div>
                 </div>
@@ -705,9 +781,8 @@
 
         function renderFixtures() {
             const groupWrap = document.getElementById('fixtures-group');
-            const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+            const today = new Date().toISOString().slice(0, 10);
 
-            // Collect group-stage fixtures, preserving their original array index for updateScore
             let fixtures = [];
             matchFixtures.forEach((m, idx) => {
                 if (m.num !== undefined) return;
@@ -715,46 +790,38 @@
             });
 
             if (!showAllFixtures) {
-                // Default: past + today only, most-recent date first
                 fixtures = fixtures.filter(m => m.date <= today);
                 fixtures.sort((a, b) =>
                     b.date !== a.date ? b.date.localeCompare(a.date) : a.time.localeCompare(b.time));
             } else {
-                // All fixtures, chronological (Matchday 1 → last)
                 fixtures.sort((a, b) =>
                     a.date !== b.date ? a.date.localeCompare(b.date) : a.time.localeCompare(b.time));
             }
 
             if (fixtures.length === 0) {
-                groupWrap.innerHTML = `
-                    <div class="col-span-full text-center py-12 text-gray-500 text-sm leading-relaxed">
-                        No past or current fixtures yet.<br>
-                        <span class="text-gray-600">Enable the toggle above to see upcoming matches.</span>
-                    </div>`;
+                groupWrap.innerHTML = `<div class="col-span-full fx-no-data">No past or current fixtures yet.<br><span style="font-size:11px;">Enable the toggle above to see upcoming matches.</span></div>`;
                 return;
             }
 
             let html = '';
             let lastDate = null;
+            let isFirst = true;
 
             fixtures.forEach(match => {
-                // Date separator
                 if (match.date !== lastDate) {
                     lastDate = match.date;
                     const isToday  = match.date === today;
                     const isFuture = match.date > today;
-                    const dotCls   = isToday  ? 'bg-emerald-500 animate-pulse'
-                                   : isFuture ? 'bg-blue-500' : 'bg-gray-600';
-                    const txtCls   = isToday  ? 'text-emerald-400'
-                                   : isFuture ? 'text-blue-400' : 'text-gray-500';
-                    const prefix   = isToday  ? 'Today — '
-                                   : isFuture ? 'Upcoming — ' : '';
+                    const dotColor = isToday ? '#10b981' : isFuture ? '#60a5fa' : 'var(--gc-gd-neu)';
+                    const lblClass = isToday ? 'fx-date-today' : isFuture ? 'fx-date-future' : 'fx-date-past';
+                    const prefix   = isToday ? 'Today — ' : isFuture ? 'Upcoming — ' : '';
                     html += `
-                        <div class="col-span-full flex items-center gap-2 pt-5 pb-2 first:pt-0">
-                            <span class="w-2 h-2 rounded-full ${dotCls} flex-shrink-0"></span>
-                            <span class="text-[10px] font-bold tracking-widest uppercase ${txtCls}">${prefix}${fmtDate(match.date)}</span>
-                            <span class="flex-1 border-t border-gray-800/60"></span>
+                        <div class="col-span-full fx-date-sep${isFirst ? ' first-sep' : ''}">
+                            <span class="fx-date-dot" style="background:${dotColor};${isToday ? 'animation:pulse 2s infinite' : ''}"></span>
+                            <span class="fx-date-label ${lblClass}">${prefix}${fmtDate(match.date)}</span>
+                            <span class="fx-date-line"></span>
                         </div>`;
+                    isFirst = false;
                 }
 
                 const t1 = findTeam(match.team1);
@@ -763,39 +830,37 @@
                 const s2 = match.score?.ft != null ? match.score.ft[1] : '';
                 const isToday  = match.date === today;
                 const isFuture = match.date > today;
-                const cardBorder = isToday  ? 'border-emerald-900/60 hover:border-emerald-700'
-                                 : isFuture ? 'border-blue-900/40 hover:border-blue-800'
-                                 :            'border-gray-800 hover:border-gray-700';
+                const cardMod  = isToday ? ' fx-card-today' : isFuture ? ' fx-card-future' : '';
 
                 html += `
-                    <div class="bg-gray-900 border ${cardBorder} rounded-xl p-4 flex flex-col shadow-md transition-all">
-                        <div class="flex items-center justify-between text-xs text-gray-400 border-b border-gray-800 pb-2 mb-3">
-                            <span class="font-semibold text-amber-500">${match.round}</span>
-                            <span class="font-mono bg-gray-950 px-2 py-0.5 rounded text-gray-500">${match.time}</span>
+                    <div class="fx-card${cardMod}">
+                        <div class="fx-hdr">
+                            <span class="fx-round">${match.round}</span>
+                            <span class="fx-time-badge">${match.time}</span>
                         </div>
-                        <div class="space-y-3">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3 min-w-0">
-                                    <span class="text-xl flex-shrink-0">${t1.flag_icon}</span>
-                                    <span class="text-sm font-semibold text-gray-200 truncate">${match.team1}</span>
+                        <div style="display:flex;flex-direction:column;gap:10px;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                                <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+                                    <span style="font-size:20px;flex-shrink:0;">${t1.flag_icon}</span>
+                                    <span class="fx-team-name">${match.team1}</span>
                                 </div>
                                 <input type="number" value="${s1}" min="0" placeholder="-"
                                     onchange="updateScore(${match._idx},0,this.value)"
-                                    class="w-12 h-8 bg-gray-950 border border-gray-800 text-center rounded-md font-bold text-yellow-400 focus:outline-none focus:border-yellow-500 text-sm">
+                                    class="fx-score-input">
                             </div>
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3 min-w-0">
-                                    <span class="text-xl flex-shrink-0">${t2.flag_icon}</span>
-                                    <span class="text-sm font-semibold text-gray-200 truncate">${match.team2}</span>
+                            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                                <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+                                    <span style="font-size:20px;flex-shrink:0;">${t2.flag_icon}</span>
+                                    <span class="fx-team-name">${match.team2}</span>
                                 </div>
                                 <input type="number" value="${s2}" min="0" placeholder="-"
                                     onchange="updateScore(${match._idx},1,this.value)"
-                                    class="w-12 h-8 bg-gray-950 border border-gray-800 text-center rounded-md font-bold text-yellow-400 focus:outline-none focus:border-yellow-500 text-sm">
+                                    class="fx-score-input">
                             </div>
                         </div>
-                        <div class="mt-3 pt-2 border-t border-gray-800/60 flex items-center justify-between text-[11px] text-gray-500 font-mono">
-                            <span>📍 ${match.ground}</span>
-                            <span class="text-gray-400 font-sans font-semibold">${match.group || ''}</span>
+                        <div class="fx-footer">
+                            <span class="fx-venue">📍 ${match.ground}</span>
+                            <span class="fx-group">${match.group || ''}</span>
                         </div>
                     </div>`;
             });
@@ -862,10 +927,7 @@
             let headersHtml = `<div style="display:grid;grid-template-columns:repeat(${COLS},${COL_W}px);gap:${GAP}px;margin-bottom:8px;">`;
             roundLabels.forEach((label, i) => {
                 const gold = i === 4;
-                headersHtml += `
-                    <div class="text-center py-2 text-xs font-bold ${gold ? 'text-yellow-400 bg-gray-800/80 border border-yellow-900' : 'text-amber-500 bg-gray-800'} rounded-lg">
-                        ${gold ? '<i class="fa-solid fa-trophy mr-1 text-yellow-500"></i>' : ''}${label}
-                    </div>`;
+                headersHtml += `<div class="ko-round-lbl${gold ? ' ko-round-lbl-final' : ''}">${gold ? '<i class="fa-solid fa-trophy" style="margin-right:4px;"></i>' : ''}${label}</div>`;
             });
             headersHtml += `</div>`;
 
@@ -890,32 +952,28 @@
                 const isThird   = num === 103;
                 const isCompact = rowSpan === 1; // R32 only
 
-                const borderCls = isFinal
-                    ? 'border-yellow-500 shadow-yellow-900/40 shadow-lg'
-                    : isThird ? 'border-purple-600' : 'border-gray-700';
+                const cardMod = isFinal ? ' ko-final' : isThird ? ' ko-third' : '';
 
-                // Helper: render one team row — data-* attrs enable targeted DOM updates
                 const teamRowCompact = (flag, label, isPending, scoreVal, teamIdx) => `
-                    <div class="flex items-center justify-between gap-1">
-                        <div class="flex items-center gap-1 flex-1 min-w-0">
-                            <span data-flag-match="${num}" data-flag-team="${teamIdx}" style="font-size:14px;line-height:1;">${flag}</span>
-                            <span data-label-match="${num}" data-label-team="${teamIdx}" class="${isPending ? 'text-gray-500 italic' : 'text-gray-200 font-medium'} truncate" style="font-size:10px;">${label}</span>
+                    <div class="ko-team-row-c">
+                        <div style="display:flex;align-items:center;gap:4px;flex:1;min-width:0;">
+                            <span data-flag-match="${num}" data-flag-team="${teamIdx}" style="font-size:14px;line-height:1;flex-shrink:0;">${flag}</span>
+                            <span data-label-match="${num}" data-label-team="${teamIdx}" class="${isPending ? 'ko-lbl-pending' : 'ko-lbl-c'}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${label}</span>
                         </div>
                         <input type="number" value="${scoreVal}" min="0" placeholder="-"
                             onchange="updateScore(${match.idx},${teamIdx},this.value)"
-                            class="bg-gray-950 border border-gray-800 text-center rounded font-bold text-yellow-400 focus:outline-none focus:border-yellow-500 flex-shrink-0"
-                            style="width:26px;height:20px;font-size:10px;">
+                            class="ko-input-c">
                     </div>`;
 
                 const teamRowStd = (flag, label, isPending, scoreVal, teamIdx, fs, ifs) => `
-                    <div class="flex items-center justify-between gap-1">
-                        <div class="flex items-center gap-2 flex-1 min-w-0">
+                    <div class="ko-team-row-s">
+                        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
                             <span data-flag-match="${num}" data-flag-team="${teamIdx}" style="font-size:${fs};line-height:1;flex-shrink:0;">${flag}</span>
-                            <span data-label-match="${num}" data-label-team="${teamIdx}" class="${isPending ? 'text-gray-500 italic' : 'font-semibold text-gray-200'} truncate" style="font-size:${ifs};">${label}</span>
+                            <span data-label-match="${num}" data-label-team="${teamIdx}" class="${isPending ? 'ko-lbl-pending' : 'ko-lbl-s'}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:${ifs};">${label}</span>
                         </div>
                         <input type="number" value="${scoreVal}" min="0" placeholder="-"
                             onchange="updateScore(${match.idx},${teamIdx},this.value)"
-                            class="bg-gray-950 border border-gray-800 text-center rounded-lg font-bold text-yellow-400 focus:outline-none focus:border-yellow-500 flex-shrink-0"
+                            class="ko-input-s"
                             style="width:${rowSpan>=4?'36':'30'}px;height:${rowSpan>=4?'30':'24'}px;font-size:${rowSpan>=4?'14':'12'}px;">
                     </div>`;
 
@@ -923,34 +981,34 @@
 
                 if (isCompact) {
                     cardInner = `
-                        <div class="h-full bg-gray-900 border ${borderCls} rounded-lg flex flex-col justify-between overflow-hidden" style="padding:4px 6px;">
-                            <div class="flex justify-between items-center" style="font-size:9px;line-height:1.2;">
-                                <span class="text-amber-600 font-mono font-semibold">#${num}</span>
-                                <span class="text-gray-600 font-mono">${match.date.slice(5)}</span>
+                        <div class="ko-compact${cardMod}">
+                            <div class="ko-meta">
+                                <span class="ko-num">#${num}</span>
+                                <span class="ko-date">${match.date.slice(5)}</span>
                             </div>
                             ${teamRowCompact(t1.flag_icon, name1, isPending1, s1, 0)}
                             ${teamRowCompact(t2.flag_icon, name2, isPending2, s2, 1)}
                         </div>`;
                 } else {
                     const labelText = isFinal ? '🏆 FINAL' : isThird ? '🥉 3rd Place' : `#${num} · ${match.round}`;
-                    const labelCls  = isFinal ? 'text-yellow-400' : isThird ? 'text-purple-400' : 'text-amber-500';
-                    const paddingCls = rowSpan >= 4 ? 'p-3' : 'p-2';
+                    const titleCls  = isFinal ? 'ko-title-final' : isThird ? 'ko-title-third' : 'ko-title-normal';
+                    const pad       = rowSpan >= 4 ? '12px' : '8px';
                     const flagFs    = rowSpan >= 4 ? '22px' : '18px';
                     const nameFs    = rowSpan >= 4 ? '14px' : '12px';
 
                     cardInner = `
-                        <div class="h-full bg-gray-900 border ${borderCls} rounded-xl ${paddingCls} flex flex-col justify-between overflow-hidden">
-                            <div>
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="font-bold ${labelCls}" style="font-size:11px;">${labelText}</span>
-                                    <span class="text-gray-500 font-mono" style="font-size:9px;">${match.date}</span>
+                        <div class="ko-std${cardMod}">
+                            <div class="ko-body" style="padding:${pad};">
+                                <div>
+                                    <div class="ko-card-title" style="margin-bottom:${rowSpan>=4?'12':'8'}px;">
+                                        <span class="${titleCls}">${labelText}</span>
+                                        <span class="ko-card-date">${match.date}</span>
+                                    </div>
+                                    <div style="margin-bottom:${rowSpan>=4?'10':'6'}px;">${teamRowStd(t1.flag_icon, name1, isPending1, s1, 0, flagFs, nameFs)}</div>
+                                    ${teamRowStd(t2.flag_icon, name2, isPending2, s2, 1, flagFs, nameFs)}
                                 </div>
-                                <div class="mb-2">${teamRowStd(t1.flag_icon, name1, isPending1, s1, 0, flagFs, nameFs)}</div>
-                                ${teamRowStd(t2.flag_icon, name2, isPending2, s2, 1, flagFs, nameFs)}
                             </div>
-                            <div class="text-gray-500 font-mono truncate mt-2" style="font-size:9px;">
-                                📍 ${match.ground} · ${match.time}
-                            </div>
+                            <div class="ko-footer" style="padding:5px ${pad};">📍 ${match.ground} · ${match.time}</div>
                         </div>`;
                 }
 
@@ -1268,34 +1326,31 @@
             const keepers = computeTopKeepers();
 
             const _noDataMsg = (icon, msg) =>
-                `<div class="text-center py-10 text-gray-500">
-                    <i class="fa-solid fa-${icon} text-3xl mb-3 block opacity-30"></i>
-                    <p class="text-sm">${msg}</p>
-                 </div>`;
+                `<div class="st-no-data"><i class="fa-solid fa-${icon}"></i><p>${msg}</p></div>`;
 
             const scorerEl = document.getElementById('stats-scorers');
             if (scorerEl) {
                 if (!scorers.length) {
                     scorerEl.innerHTML = _noDataMsg('futbol', noData
-                        ? 'Click <strong class="text-gray-400">Sync from API</strong> to load goal events'
+                        ? 'Click <strong>Sync from API</strong> to load goal events'
                         : 'No goal events returned — only ESPN provides this on the free tier');
                 } else {
-                    scorerEl.innerHTML = `<table class="w-full text-sm"><thead>
-                        <tr class="text-xs text-gray-500 uppercase border-b border-gray-800">
-                            <th class="py-2 text-left w-6">#</th>
-                            <th class="py-2 text-left">Player</th>
-                            <th class="py-2 text-left">Team</th>
-                            <th class="py-2 text-right">G</th>
-                            <th class="py-2 text-right text-gray-700">Pen</th>
+                    scorerEl.innerHTML = `<table class="st-table"><thead>
+                        <tr>
+                            <th class="st-th" style="text-align:left;width:24px;">#</th>
+                            <th class="st-th" style="text-align:left;">Player</th>
+                            <th class="st-th" style="text-align:left;">Team</th>
+                            <th class="st-th">G</th>
+                            <th class="st-th" style="opacity:.6;">Pen</th>
                         </tr></thead><tbody>${
                         scorers.slice(0,25).map((s,i) => {
                             const info = findTeam(s.team);
-                            return `<tr class="border-b border-gray-800/50 hover:bg-gray-800/40 transition-colors">
-                                <td class="py-2 pr-2 text-gray-600 text-xs">${i+1}</td>
-                                <td class="py-2 font-medium text-gray-200">${s.player}</td>
-                                <td class="py-2 text-gray-400">${info.flag_icon} ${s.team}</td>
-                                <td class="py-2 text-right font-bold text-yellow-400">${s.goals}</td>
-                                <td class="py-2 text-right text-gray-600 text-xs">${s.penalties||''}</td>
+                            return `<tr class="st-tr">
+                                <td class="st-td st-rank">${i+1}</td>
+                                <td class="st-td" style="font-weight:600;">${s.player}</td>
+                                <td class="st-td" style="color:var(--gc-num);">${info.flag_icon} ${s.team}</td>
+                                <td class="st-td st-gold">${s.goals}</td>
+                                <td class="st-td st-muted">${s.penalties||''}</td>
                             </tr>`;
                         }).join('')
                     }</tbody></table>`;
@@ -1306,25 +1361,25 @@
             if (keeperEl) {
                 if (!keepers.length) {
                     keeperEl.innerHTML = _noDataMsg('hands', noData
-                        ? 'Click <strong class="text-gray-400">Sync from API</strong> to load save data'
+                        ? 'Click <strong>Sync from API</strong> to load save data'
                         : 'No save/shot data returned. ESPN includes this when available; others do not on free tiers.');
                 } else {
-                    keeperEl.innerHTML = `<table class="w-full text-sm"><thead>
-                        <tr class="text-xs text-gray-500 uppercase border-b border-gray-800">
-                            <th class="py-2 text-left w-6">#</th>
-                            <th class="py-2 text-left">Team</th>
-                            <th class="py-2 text-right">Saves</th>
-                            <th class="py-2 text-right">Conceded</th>
-                            <th class="py-2 text-right">MP</th>
+                    keeperEl.innerHTML = `<table class="st-table"><thead>
+                        <tr>
+                            <th class="st-th" style="text-align:left;width:24px;">#</th>
+                            <th class="st-th" style="text-align:left;">Team</th>
+                            <th class="st-th">Saves</th>
+                            <th class="st-th">Conceded</th>
+                            <th class="st-th">MP</th>
                         </tr></thead><tbody>${
                         keepers.slice(0,25).map((k,i) => {
                             const info = findTeam(k.team);
-                            return `<tr class="border-b border-gray-800/50 hover:bg-gray-800/40 transition-colors">
-                                <td class="py-2 pr-2 text-gray-600 text-xs">${i+1}</td>
-                                <td class="py-2 font-medium text-gray-200">${info.flag_icon} ${k.team}</td>
-                                <td class="py-2 text-right font-bold text-sky-400">${k.saves}</td>
-                                <td class="py-2 text-right text-gray-400">${k.conceded}</td>
-                                <td class="py-2 text-right text-gray-600 text-xs">${k.matches}</td>
+                            return `<tr class="st-tr">
+                                <td class="st-td st-rank">${i+1}</td>
+                                <td class="st-td" style="font-weight:600;">${info.flag_icon} ${k.team}</td>
+                                <td class="st-td st-blue">${k.saves}</td>
+                                <td class="st-td st-sec">${k.conceded}</td>
+                                <td class="st-td st-muted">${k.matches}</td>
                             </tr>`;
                         }).join('')
                     }</tbody></table>`;
