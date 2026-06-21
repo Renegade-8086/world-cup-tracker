@@ -11,76 +11,153 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: #1f2937; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 3px; }
 
+        /* ── CSS custom properties: dark (default) and light overrides ── */
+        :root {
+            --gc-body-bg:#030712; --gc-card-bg:#111827; --gc-card-border:#1f2937;
+            --gc-hdr-from:#1a2234; --gc-hdr-to:#0f172a; --gc-hdr-border:#1e2d3d;
+            --gc-col-hdr-bg:rgba(31,41,55,.65); --gc-col-hdr-border:rgba(55,65,81,.5);
+            --gc-col-text:#9ca3af; --gc-col-pts:#ca8a04;
+            --gc-row-border:rgba(31,41,55,.7); --gc-row-hover:rgba(255,255,255,.025);
+            --gc-q1-bar:#10b981; --gc-q1-bg:rgba(16,185,129,.05);
+            --gc-q3-bar:#f59e0b; --gc-q3-bg:rgba(245,158,11,.04);
+            --gc-name:#e5e7eb; --gc-num:#9ca3af; --gc-rec:#9ca3af; --gc-gfa:#9ca3af;
+            --gc-pts:#fbbf24; --gc-pts0:#2d3748;
+            --gc-gd-pos:#34d399; --gc-gd-neg:#f87171; --gc-gd-neu:#6b7280;
+            --gc-prog-track:#1f2937; --gc-letter:#fbbf24;
+            --gc-legend-border:rgba(31,41,55,.8); --gc-legend-text:#6b7280;
+            --gc-hdr-chrome:rgba(17,24,39,.94); --gc-nav-chrome:#030712;
+            --gc-chrome-border:#1f2937; --gc-tab-inactive:#9ca3af;
+        }
+        :root.light {
+            --gc-body-bg:#f0f4f8; --gc-card-bg:#ffffff; --gc-card-border:#e2e8f0;
+            --gc-hdr-from:#f8fafc; --gc-hdr-to:#f1f5f9; --gc-hdr-border:#e2e8f0;
+            --gc-col-hdr-bg:rgba(241,245,249,.95); --gc-col-hdr-border:rgba(226,232,240,.8);
+            --gc-col-text:#475569; --gc-col-pts:#b45309;
+            --gc-row-border:rgba(226,232,240,.8); --gc-row-hover:rgba(0,0,0,.02);
+            --gc-q1-bar:#059669; --gc-q1-bg:rgba(5,150,105,.05);
+            --gc-q3-bar:#d97706; --gc-q3-bg:rgba(217,119,6,.04);
+            --gc-name:#1e293b; --gc-num:#475569; --gc-rec:#475569; --gc-gfa:#475569;
+            --gc-pts:#b45309; --gc-pts0:#cbd5e1;
+            --gc-gd-pos:#059669; --gc-gd-neg:#dc2626; --gc-gd-neu:#94a3b8;
+            --gc-prog-track:#e2e8f0; --gc-letter:#d97706;
+            --gc-legend-border:rgba(226,232,240,.8); --gc-legend-text:#94a3b8;
+            --gc-hdr-chrome:rgba(255,255,255,.96); --gc-nav-chrome:#f8fafc;
+            --gc-chrome-border:#e2e8f0; --gc-tab-inactive:#64748b;
+        }
+
+        /* ── Light mode: structural overrides for Tailwind-based elements ── */
+        :root.light body { background-color: var(--gc-body-bg) !important; color: #1e293b !important; }
+        :root.light #main-header { background-color: var(--gc-hdr-chrome) !important; border-color: var(--gc-chrome-border) !important; }
+        :root.light #main-nav   { background-color: var(--gc-nav-chrome) !important; border-color: var(--gc-chrome-border) !important; }
+        :root.light #tab-groups,:root.light #tab-schedule,:root.light #tab-knockout,:root.light #tab-stats { color: var(--gc-tab-inactive) !important; }
+        :root.light p.app-subtitle { color: #64748b !important; }
+        /* Broad gray overrides for schedule / knockout / stats tabs */
+        :root.light [class~="bg-gray-950"] { background-color: #f8fafc !important; }
+        :root.light [class~="bg-gray-900"] { background-color: #ffffff !important; }
+        :root.light [class~="bg-gray-800"] { background-color: #f1f5f9 !important; }
+        :root.light [class~="border-gray-800"] { border-color: #e2e8f0 !important; }
+        :root.light [class~="border-gray-700"] { border-color: #cbd5e1 !important; }
+        :root.light [class~="text-gray-400"] { color: #64748b !important; }
+        :root.light [class~="text-gray-500"] { color: #94a3b8 !important; }
+        :root.light [class~="text-gray-300"] { color: #475569 !important; }
+        :root.light [class~="text-gray-200"] { color: #334155 !important; }
+        :root.light [class~="text-gray-100"] { color: #1e293b !important; }
+        :root.light [class~="bg-gray-800\/50"] { background-color: rgba(241,245,249,.7) !important; }
+        :root.light [class~="bg-gray-800\/40"] { background-color: rgba(241,245,249,.6) !important; }
+
         /* ── Group Standings cards ── */
         .gc-card {
-            display: flex;
-            flex-direction: column;
-            background: #111827;
-            border: 1px solid #1f2937;
-            border-radius: 12px;
-            overflow: hidden;
+            display: flex; flex-direction: column;
+            background: var(--gc-card-bg);
+            border: 1px solid var(--gc-card-border);
+            border-radius: 12px; overflow: hidden;
             transition: border-color .15s, box-shadow .15s;
         }
-        .gc-card:hover { border-color: #374151; box-shadow: 0 0 0 1px #374151, 0 8px 24px rgba(0,0,0,.4); }
+        .gc-card:hover { border-color: #374151; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+        :root.light .gc-card:hover { border-color: #cbd5e1; box-shadow: 0 8px 24px rgba(0,0,0,.08); }
 
-        /* 7-column grid: pos | team | P | W·D·L | GF·GA | GD | Pts */
+        /* Scrollable inner wrapper for mobile */
+        .gc-scroll-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+        /* 7-column grid: pos | team | P | W·D·L | GF·GA | GD | Pts
+           min-width forces horizontal scroll on very narrow viewports */
         .gc-row {
             display: grid;
-            grid-template-columns: 18px 1fr 22px 50px 38px 30px 36px;
+            grid-template-columns: 20px 1fr 24px 52px 42px 32px 38px;
             align-items: center;
             column-gap: 4px;
-            padding: 0 12px;
+            padding: 0 14px;
+            min-width: 290px;
         }
-        .gc-col-hdr { padding: 6px 0 5px; background: rgba(31,41,55,.6); border-bottom: 1px solid rgba(55,65,81,.5); }
-        .gc-col-hdr span { font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #6b7280; text-align: center; }
+
+        /* Column header — no border-left so it stays aligned with rows that use box-shadow */
+        .gc-col-hdr {
+            padding: 7px 0 6px;
+            background: var(--gc-col-hdr-bg);
+            border-bottom: 1px solid var(--gc-col-hdr-border);
+        }
+        .gc-col-hdr span {
+            font-size: 11px; font-weight: 700; letter-spacing: .04em;
+            text-transform: uppercase; color: var(--gc-col-text); text-align: center;
+        }
         .gc-col-hdr span:nth-child(2) { text-align: left; }
-        .gc-col-hdr span:last-child { color: #ca8a04; }
+        .gc-col-hdr span:last-child { color: var(--gc-col-pts); }
 
         .gc-team-row {
-            padding-top: 7px;
-            padding-bottom: 7px;
-            border-bottom: 1px solid rgba(31,41,55,.7);
+            padding-top: 8px; padding-bottom: 8px;
+            border-bottom: 1px solid var(--gc-row-border);
             transition: background .12s;
-            position: relative;
         }
         .gc-team-row:last-of-type { border-bottom: none; }
-        .gc-team-row:hover { background: rgba(255,255,255,.025); }
+        .gc-team-row:hover { background: var(--gc-row-hover); }
 
-        /* Qualification zone: left accent bar */
-        .gc-qualify-1 { border-left: 2px solid #10b981; background: rgba(16,185,129,.04); }
-        .gc-qualify-2 { border-left: 2px solid #10b981; background: rgba(16,185,129,.04); }
-        .gc-qualify-3 { border-left: 2px solid #f59e0b; background: rgba(245,158,11,.03); }
-        .gc-qualify-4 { border-left: 2px solid transparent; }
+        /* Qualification: inset box-shadow avoids shifting column alignment */
+        .gc-qualify-1 { box-shadow: inset 3px 0 0 var(--gc-q1-bar); background: var(--gc-q1-bg); }
+        .gc-qualify-2 { box-shadow: inset 3px 0 0 var(--gc-q1-bar); background: var(--gc-q1-bg); }
+        .gc-qualify-3 { box-shadow: inset 3px 0 0 var(--gc-q3-bar); background: var(--gc-q3-bg); }
+        .gc-qualify-4 { }
 
-        .gc-pos  { font-size: 10px; font-weight: 700; font-family: ui-monospace,monospace; text-align: center; }
-        .gc-name { font-size: 11.5px; font-weight: 500; color: #e5e7eb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .gc-num  { font-size: 11px; font-family: ui-monospace,monospace; color: #6b7280; text-align: center; }
-        .gc-rec  { font-size: 10px; font-family: ui-monospace,monospace; color: #4b5563; text-align: center; letter-spacing: .02em; }
-        .gc-gfa  { font-size: 10px; font-family: ui-monospace,monospace; color: #4b5563; text-align: center; }
-        .gc-gd   { font-size: 11px; font-family: ui-monospace,monospace; font-weight: 600; text-align: center; }
-        .gc-pts  { font-size: 14px; font-weight: 800; color: #fbbf24; text-align: center; }
-        .gc-pts-zero { color: #374151; }
+        .gc-pos  { font-size: 11px; font-weight: 700; font-family: ui-monospace,monospace; text-align: center; }
+        .gc-name { font-size: 12px; font-weight: 500; color: var(--gc-name); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .gc-num  { font-size: 12px; font-family: ui-monospace,monospace; color: var(--gc-num); text-align: center; }
+        .gc-rec  { font-size: 11px; font-family: ui-monospace,monospace; color: var(--gc-rec); text-align: center; letter-spacing: .02em; }
+        .gc-gfa  { font-size: 11px; font-family: ui-monospace,monospace; color: var(--gc-gfa); text-align: center; }
+        .gc-gd   { font-size: 12px; font-family: ui-monospace,monospace; font-weight: 600; text-align: center; }
+        .gc-pts  { font-size: 15px; font-weight: 800; color: var(--gc-pts); text-align: center; }
+        .gc-pts-zero { color: var(--gc-pts0) !important; }
 
-        .gc-gd-pos { color: #34d399; }
-        .gc-gd-neg { color: #f87171; }
-        .gc-gd-neu { color: #4b5563; }
+        .gc-gd-pos { color: var(--gc-gd-pos); }
+        .gc-gd-neg { color: var(--gc-gd-neg); }
+        .gc-gd-neu { color: var(--gc-gd-neu); }
 
-        /* Match progress bar under header */
-        .gc-progress-track { height: 2px; background: #1f2937; }
-        .gc-progress-fill  { height: 100%; background: linear-gradient(90deg, #f59e0b, #f97316); border-radius: 0 1px 1px 0; transition: width .4s; }
+        .gc-progress-track { height: 2px; background: var(--gc-prog-track); }
+        .gc-progress-fill  { height: 100%; background: linear-gradient(90deg,#f59e0b,#f97316); border-radius:0 1px 1px 0; transition: width .4s; }
 
-        .gc-legend { display: flex; gap: 14px; padding: 6px 12px; border-top: 1px solid rgba(31,41,55,.8); }
-        .gc-legend span { display: flex; align-items: center; gap: 5px; font-size: 9px; color: #4b5563; font-weight: 500; }
-        .gc-legend-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+        /* Global legend (shown once above grid) */
+        #gc-global-legend {
+            display: flex; align-items: center; gap: 18px;
+            padding: 0 2px 14px; flex-wrap: wrap;
+        }
+        #gc-global-legend span {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 11px; font-weight: 500; color: var(--gc-legend-text);
+        }
+        .gc-legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
         .gc-status-badge {
             font-size: 9px; font-weight: 600; letter-spacing: .04em;
-            padding: 1px 6px; border-radius: 99px; font-family: ui-monospace,monospace;
+            padding: 2px 7px; border-radius: 99px; font-family: ui-monospace,monospace;
         }
-        .gc-status-live    { background: rgba(239,68,68,.15); color: #f87171; }
         .gc-status-partial { background: rgba(245,158,11,.12); color: #fbbf24; }
         .gc-status-done    { background: rgba(16,185,129,.12); color: #34d399; }
         .gc-status-pre     { background: rgba(75,85,99,.2);    color: #6b7280; }
+        :root.light .gc-status-partial { background: rgba(217,119,6,.1);  color: #b45309; }
+        :root.light .gc-status-done    { background: rgba(5,150,105,.1);  color: #059669; }
+        :root.light .gc-status-pre     { background: rgba(100,116,139,.1);color: #64748b; }
+
+        /* Theme toggle button */
+        #btn-theme { transition: background .2s, color .2s; }
+        :root.light #btn-theme { background: #f1f5f9 !important; color: #475569 !important; border-color: #e2e8f0 !important; }
 
         .bracket-connector {
             position: relative;
@@ -99,18 +176,21 @@
 <body class="bg-gray-950 text-gray-100 font-sans min-h-screen">
 
     <div class="sticky top-0 z-50">
-        <header class="border-b border-gray-800 bg-gray-900 backdrop-blur-md bg-opacity-90">
+        <header id="main-header" class="border-b border-gray-800 bg-gray-900 backdrop-blur-md bg-opacity-90">
             <div class="max-w-screen-2xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
                     <span class="text-3xl">⚽</span>
                     <div>
                         <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">World Cup 2026</h1>
-                        <p class="text-xs text-gray-400">Interactive Bracket & Schedule Engine</p>
+                        <p class="app-subtitle text-xs text-gray-400">Interactive Bracket &amp; Schedule Engine</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
                     <button id="btn-sync-api" onclick="syncFromAPI()" class="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white rounded-lg text-sm font-semibold shadow-lg transition-all duration-200" title="Fetch live results from the configured sports API">
                         <i class="fa-solid fa-rotate"></i> <span>Sync from API</span>
+                    </button>
+                    <button id="btn-theme" onclick="toggleTheme()" class="flex items-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-lg text-sm font-semibold shadow-lg border border-transparent" title="Toggle light / dark mode">
+                        <i id="theme-icon" class="fa-solid fa-sun"></i>
                     </button>
                     <button onclick="openSettings()" class="flex items-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-lg text-sm font-semibold shadow-lg transition-all duration-200" title="Configure API provider">
                         <i class="fa-solid fa-gear"></i>
@@ -118,7 +198,7 @@
                 </div>
             </div>
         </header>
-        <nav class="bg-gray-950 border-b border-gray-800">
+        <nav id="main-nav" class="bg-gray-950 border-b border-gray-800">
             <div class="max-w-screen-2xl mx-auto px-4">
                 <div class="flex overflow-x-auto custom-scrollbar">
                     <button onclick="switchTab('groups')" id="tab-groups" class="px-6 py-3 font-semibold text-sm border-b-2 border-yellow-500 text-yellow-500 whitespace-nowrap">
@@ -141,7 +221,12 @@
     <main class="max-w-screen-2xl mx-auto px-4 py-8">
 
         <!-- Tab 1: Group Standings -->
-        <div id="view-groups" class="grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4"></div>
+        <div id="gc-global-legend">
+            <span><span class="gc-legend-dot" style="background:var(--gc-q1-bar)"></span>Qualify (Top 2)</span>
+            <span><span class="gc-legend-dot" style="background:var(--gc-q3-bar)"></span>Potential 3rd qualifier</span>
+            <span style="margin-left:auto;font-size:10px;opacity:.5;">← swipe cards to see all columns on mobile</span>
+        </div>
+        <div id="view-groups" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4"></div>
 
         <!-- Tab 2: Group Fixtures -->
         <div id="view-schedule" class="hidden">
@@ -516,7 +601,8 @@
                     ? "px-6 py-3 font-semibold text-sm border-b-2 border-yellow-500 text-yellow-500 whitespace-nowrap"
                     : "px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-400 hover:text-gray-200 whitespace-nowrap";
             });
-            // Re-render the destination tab so it always reflects latest scores
+            const legend = document.getElementById('gc-global-legend');
+            if (legend) legend.style.display = view === 'groups' ? 'flex' : 'none';
             if (view === 'groups')   renderGroups();
             if (view === 'knockout') renderKnockout();
             if (view === 'stats')    renderStats();
@@ -549,11 +635,11 @@
 
                 let html = `
                 <div class="gc-card">
-                    <div style="background:linear-gradient(135deg,#1a2234 0%,#0f172a 100%);padding:10px 12px 8px;border-bottom:1px solid #1e2d3d;">
+                    <div style="background:linear-gradient(135deg,var(--gc-hdr-from) 0%,var(--gc-hdr-to) 100%);padding:10px 14px 8px;border-bottom:1px solid var(--gc-hdr-border);">
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
                             <div style="display:flex;align-items:center;gap:8px;">
-                                <span style="font-size:18px;font-weight:900;color:#fbbf24;letter-spacing:-.01em;line-height:1;">Group</span>
-                                <span style="font-size:26px;font-weight:900;color:#fbbf24;line-height:1;">${letter}</span>
+                                <span style="font-size:17px;font-weight:900;color:var(--gc-letter);letter-spacing:-.01em;line-height:1;">Group</span>
+                                <span style="font-size:25px;font-weight:900;color:var(--gc-letter);line-height:1;">${letter}</span>
                             </div>
                             ${statusHtml}
                         </div>
@@ -561,7 +647,7 @@
                             <div class="gc-progress-fill" style="width:${pct}%"></div>
                         </div>
                     </div>
-
+                    <div class="gc-scroll-wrap">
                     <div class="gc-row gc-col-hdr">
                         <span></span>
                         <span style="text-align:left;">Team</span>
@@ -595,9 +681,6 @@
                 });
 
                 html += `
-                    <div class="gc-legend">
-                        <span><span class="gc-legend-dot" style="background:#10b981"></span>Qualify (Top 2)</span>
-                        <span><span class="gc-legend-dot" style="background:#f59e0b"></span>Potential 3rd</span>
                     </div>
                 </div>`;
 
@@ -1280,6 +1363,13 @@
         }
 
         // ── Settings modal ─────────────────────────────────────────────────────
+        // ── Light / Dark mode ──────────────────────────────────────────────────
+        function toggleTheme() {
+            const isLight = document.documentElement.classList.toggle('light');
+            localStorage.setItem('wctracker_theme', isLight ? 'light' : 'dark');
+            document.getElementById('theme-icon').className = isLight ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+        }
+
         function openSettings() {
             document.getElementById('select-provider').value = getProvider();
             document.getElementById('input-api-key').value  = getApiKey(getProvider());
@@ -1310,6 +1400,12 @@
 
         // ── Boot ───────────────────────────────────────────────────────────────
         window.onload = function () {
+            // Restore saved theme before first paint
+            if (localStorage.getItem('wctracker_theme') === 'light') {
+                document.documentElement.classList.add('light');
+                const icon = document.getElementById('theme-icon');
+                if (icon) icon.className = 'fa-solid fa-moon';
+            }
             loadScoresFromStorage();
             renderGroups();
             renderFixtures();
