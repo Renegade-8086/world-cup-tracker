@@ -22,44 +22,60 @@ No sign-ups, no databases, and no tracking cookies—just pure football analytic
 
 ## 🚀 How to Run It
 
-Since this app is built purely using static HTML, CSS, and vanilla JavaScript, there is nothing to install!
+No installation, no build step, no dependencies — it's a single HTML file.
 
 ### 1. View It Live Online
-Simply visit the GitHub Pages link generated for this repository:
+Visit the GitHub Pages link for this repository:
 `https://renegade-8086.github.io/world-cup-tracker/`
 
 ### 2. Run Locally
-1. Download or clone this repository.
-2. Double-click the `index.html` file to open it in any modern web browser.
+1. Download `index.html` from this repository.
+2. Double-click it to open in any modern web browser (Chrome, Edge, Firefox, Safari).
+
+---
+
+## 🗂️ The Three Tabs
+
+| Tab | What it does |
+|---|---|
+| **Group Standings** | Live table for all 12 groups — P, W, D, L, GF, GA, GD, Pts. Auto-sorts by Pts → GD → GF as you enter scores. |
+| **Group Fixtures** | Match-by-match score entry for all 72 group stage games. Default view shows today's matches at the top, descending to Matchday 1. Toggle *"Show all fixtures including future"* to see the full schedule in chronological order. |
+| **Knockout Bracket** | Horizontal column view from Round of 32 through to the Final and 3rd-place play-off. Placeholder slots (1A, 2B, W73, etc.) automatically resolve to real team names as group scores are entered. Entering a knockout score with a clear winner instantly propagates that team into the next round. |
+
+---
+
+## 📊 Syncing Today's Scores
+
+To load real-world results without typing every score manually:
+
+1. Click **Get Today's Scores** (sky blue button in the header).
+   This downloads the latest `current_scores.json` from this repository to your device.
+2. Click **Import Data** (green button, right next to it).
+3. Select the `current_scores.json` file you just downloaded.
+
+Group standings, fixtures, and the knockout bracket all update instantly.
+
+---
+
+## 🛠️ Header Buttons at a Glance
+
+| Button | Colour | Action |
+|---|---|---|
+| **Reset Scores** | Red | Clears every entered score — prompts for confirmation first. |
+| **Get Today's Scores** | Sky blue | Downloads `current_scores.json` from the repo (latest official results). |
+| **Import Data** | Green | Load a previously exported or downloaded JSON file into the tracker. |
+| **Export Scores** | Blue | Saves your current score state as `worldcup2026_scores.json` to your device. |
 
 ---
 
 ## 🛠️ Built With
 
-* **HTML5** - Semantic layout structure.
-* **CSS3** - Responsive grid and flexbox bracket architecture.
-* **JavaScript (ES6+)** - Reactive client-side calculations and data management.
+* **HTML5 / CSS3 / Vanilla JavaScript (ES6+)** — no frameworks, no build tools.
+* **Tailwind CSS** (CDN) — utility-first styling.
+* **Font Awesome** (CDN) — icons.
 
 ---
 
-## 🔄 Resetting Data
-If your predictions go completely off the rails or you want to start a brand new simulation, simply click the **🔄 Reset Tournament** button in the header to safely wipe the cache and refresh the bracket.
+## 🔄 Keeping Scores Up To Date
 
-## 📊 How to Sync Current Tournament Scores
-
-Don't want to manually type in the scores for matches that have already been played? You can instantly sync your bracket with real-world results up to today!
-
-### If you are using the Live Website Link:
-1. Open the live tracker app link in your browser.
-2. In the top header, click the blue **📥 Get Today's Scores** button. This will instantly download the official data file (`current_scores.json`) to your device.
-3. Click the green **📤 Import Data File** button right next to it.
-4. Select the `current_scores.json` file you just downloaded.
-
-### If you are running the project locally (Offline/Desktop):
-1. Make sure you have downloaded both `index.html` and `current_scores.json` into the exact same folder on your computer.
-2. Open `index.html` to launch the app.
-3. Click the blue **📥 Get Today's Scores** button.
-4. When the app detects you are running locally, it will display a pop-up prompt. Click **OK**.
-5. Select the `current_scores.json` file sitting inside your local folder.
-
-*Boom! Your tournament tracker will instantly calculate the current standings and automatically unlock the correct knockout matchups based on real-world results.*
+`current_scores.json` in this repository is updated as matches are played. Use the **Get Today's Scores → Import Data** flow above whenever you want to pull in the latest results.
