@@ -40,6 +40,9 @@
                     <button onclick="resetAllScores()" class="flex items-center gap-2 px-4 py-2 bg-red-700 hover:bg-red-600 text-white rounded-lg text-sm font-semibold shadow-lg transition-all duration-200">
                         <i class="fa-solid fa-trash-can"></i> <span>Reset Scores</span>
                     </button>
+                    <button onclick="getTodayScores()" class="flex items-center gap-2 px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-sm font-semibold shadow-lg transition-all duration-200" title="Downloads the latest current_scores.json — then click Import Data to load it">
+                        <i class="fa-solid fa-cloud-arrow-down"></i> <span>Get Today's Scores</span>
+                    </button>
                     <button onclick="triggerImport()" class="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-semibold shadow-lg transition-all duration-200">
                         <i class="fa-solid fa-file-import"></i> <span>Import Data</span>
                     </button>
@@ -812,6 +815,15 @@
         }
 
         // ── Import / Export ────────────────────────────────────────────────────
+        function getTodayScores() {
+            const a = document.createElement('a');
+            a.href = 'https://raw.githubusercontent.com/Renegade-8086/world-cup-tracker/main/current_scores.json';
+            a.download = 'current_scores.json';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        }
+
         function syncTodayScores() {
             const a = document.createElement('a');
             a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(matchFixtures, null, 2));
