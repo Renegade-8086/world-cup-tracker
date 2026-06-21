@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Cup 2026 Bracket Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1f2937; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 3px; }
+        .bracket-connector {
+            position: relative;
+        }
+        .bracket-connector::after {
+            content: '';
+            position: absolute;
+            right: -7px;
+            top: 50%;
+            width: 7px;
+            height: 1px;
+            background: #374151;
+        }
+    </style>
+</head>
+<body class="bg-gray-950 text-gray-100 font-sans min-h-screen">
+
+    <div class="sticky top-0 z-50">
+        <header class="border-b border-gray-800 bg-gray-900 backdrop-blur-md bg-opacity-90">
+            <div class="max-w-screen-2xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-3xl">⚽</span>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">World Cup 2026</h1>
+                        <p class="text-xs text-gray-400">Interactive Bracket & Schedule Engine</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="resetAllScores()" class="flex items-center gap-2 px-4 py-2 bg-red-700 hover:bg-red-600 text-white rounded-lg text-sm font-semibold shadow-lg transition-all duration-200">
+                        <i class="fa-solid fa-trash-can"></i> <span>Reset Scores</span>
+                    </button>
+                    <button onclick="triggerImport()" class="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-semibold shadow-lg transition-all duration-200">
+                        <i class="fa-solid fa-file-import"></i> <span>Import Data</span>
+                    </button>
+                    <button onclick="syncTodayScores()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-semibold shadow-lg transition-all duration-200">
+                        <i class="fa-solid fa-download"></i> <span>Export Scores</span>
+                    </button>
+                    <input type="file" id="import-file" class="hidden" accept=".json" onchange="handleImport(event)">
+                </div>
+            </div>
+        </header>
+        <nav class="bg-gray-950 border-b border-gray-800">
+            <div class="max-w-screen-2xl mx-auto px-4">
+                <div class="flex overflow-x-auto custom-scrollbar">
+                    <button onclick="switchTab('groups')" id="tab-groups" class="px-6 py-3 font-semibold text-sm border-b-2 border-yellow-500 text-yellow-500 whitespace-nowrap">
+                        <i class="fa-solid fa-table-cells-large mr-2"></i>Group Standings
+                    </button>
+                    <button onclick="switchTab('schedule')" id="tab-schedule" class="px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-400 hover:text-gray-200 whitespace-nowrap">
+                        <i class="fa-solid fa-calendar-days mr-2"></i>Group Fixtures
+                    </button>
+                    <button onclick="switchTab('knockout')" id="tab-knockout" class="px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-400 hover:text-gray-200 whitespace-nowrap">
+                        <i class="fa-solid fa-diagram-project mr-2"></i>Knockout Bracket
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <main class="max-w-screen-2xl mx-auto px-4 py-8">
+
+        <!-- Tab 1: Group Standings -->
+        <div id="view-groups" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+
+        <!-- Tab 2: Group Fixtures -->
+        <div id="view-schedule" class="hidden">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+                <h2 class="text-xl font-bold flex items-center gap-2 text-amber-400">
+                    <i class="fa-solid fa-circle-play text-sm"></i> Group Stage Fixtures
+                </h2>
+                <label class="flex items-center gap-3 cursor-pointer select-none group" title="Toggle to reveal upcoming fixtures">
+                    <span class="text-sm text-gray-400 group-hover:text-gray-200 transition-colors">Show all fixtures including future</span>
+                    <div class="relative flex-shrink-0">
+                        <input type="checkbox" id="toggle-fixtures" class="sr-only peer" onchange="toggleFixtureView(this.checked)">
+                        <div class="w-10 h-5 bg-gray-700 peer-checked:bg-yellow-500 rounded-full transition-colors duration-200"></div>
+                        <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 peer-checked:translate-x-5"></div>
+                    </div>
+                </label>
+            </div>
+            <div id="fixtures-group" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3"></div>
+        </div>
+
+        <!-- Tab 3: Knockout Bracket -->
+        <div id="view-knockout" class="hidden">
+            <div class="flex items-center justify-between mb-4">
+                <p class="text-xs text-gray-500">Teams resolved from current group standings. Pending slots shown in <span class="italic text-gray-400">italics</span>. 3rd-place slots use provisional best-fit assignment.</p>
+                <button onclick="renderKnockout()" class="flex items-center gap-2 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-xs font-semibold border border-gray-700 transition-all">
+                    <i class="fa-solid fa-rotate-right"></i> Refresh Bracket
+                </button>
+            </div>
+            <div id="knockout-grid"></div>
+        </div>
+    </main>
+
+    <script>
+        const teamData = [
+            {"name":"Mexico","continent":"North America","flag_icon":"🇲🇽","fifa_code":"MEX","group":"A"},
+            {"name":"South Africa","continent":"Africa","flag_icon":"🇿🇦","fifa_code":"RSA","group":"A"},
+            {"name":"South Korea","continent":"Asia","flag_icon":"🇰🇷","fifa_code":"KOR","group":"A"},
+            {"name":"Czech Republic","continent":"Europe","flag_icon":"🇨🇿","fifa_code":"CZE","group":"A"},
+            {"name":"Canada","continent":"North America","flag_icon":"🇨🇦","fifa_code":"CAN","group":"B"},
+            {"name":"Bosnia & Herzegovina","continent":"Europe","flag_icon":"🇧🇦","fifa_code":"BIH","group":"B"},
+            {"name":"Qatar","continent":"Asia","flag_icon":"🇶🇦","fifa_code":"QAT","group":"B"},
+            {"name":"Switzerland","continent":"Europe","flag_icon":"🇨🇭","fifa_code":"SUI","group":"B"},
+            {"name":"Brazil","continent":"South America","flag_icon":"🇧🇷","fifa_code":"BRA","group":"C"},
+            {"name":"Morocco","continent":"Africa","flag_icon":"🇲🇦","fifa_code":"MAR","group":"C"},
+            {"name":"Haiti","continent":"North America","flag_icon":"🇭🇹","fifa_code":"HAI","group":"C"},
+            {"name":"Scotland","continent":"Europe","flag_icon":"🏴󠁧󠁢󠁳󠁣󠁴󠁿","fifa_code":"SCO","group":"C"},
+            {"name":"USA","continent":"North America","flag_icon":"🇺🇸","fifa_code":"USA","group":"D"},
+            {"name":"Paraguay","continent":"South America","flag_icon":"🇵🇾","fifa_code":"PAR","group":"D"},
+            {"name":"Australia","continent":"Oceania","flag_icon":"🇦🇺","fifa_code":"AUS","group":"D"},
+            {"name":"Turkey","continent":"Europe","flag_icon":"🇹🇷","fifa_code":"TUR","group":"D"},
+            {"name":"Germany","continent":"Europe","flag_icon":"🇩🇪","fifa_code":"GER","group":"E"},
+            {"name":"Curaçao","continent":"North America","flag_icon":"🇨🇼","fifa_code":"CUW","group":"E"},
+            {"name":"Ivory Coast","continent":"Africa","flag_icon":"🇨🇮","fifa_code":"CIV","group":"E"},
+            {"name":"Ecuador","continent":"South America","flag_icon":"🇪🇨","fifa_code":"ECU","group":"E"},
+            {"name":"Netherlands","continent":"Europe","flag_icon":"🇳🇱","fifa_code":"NED","group":"F"},
+            {"name":"Japan","continent":"Asia","flag_icon":"🇯🇵","fifa_code":"JPN","group":"F"},
+            {"name":"Sweden","continent":"Europe","flag_icon":"🇸🇪","fifa_code":"SWE","group":"F"},
+            {"name":"Tunisia","continent":"Africa","flag_icon":"🇹🇳","fifa_code":"TUN","group":"F"},
+            {"name":"Belgium","continent":"Europe","flag_icon":"🇧🇪","fifa_code":"BEL","group":"G"},
+            {"name":"Egypt","continent":"Africa","flag_icon":"🇪🇬","fifa_code":"EGY","group":"G"},
+            {"name":"Iran","continent":"Asia","flag_icon":"🇮🇷","fifa_code":"IRN","group":"G"},
+            {"name":"New Zealand","continent":"Oceania","flag_icon":"🇳🇿","fifa_code":"NZL","group":"G"},
+            {"name":"Spain","continent":"Europe","flag_icon":"🇪🇸","fifa_code":"ESP","group":"H"},
+            {"name":"Cape Verde","continent":"Africa","flag_icon":"🇨🇻","fifa_code":"CPV","group":"H"},
+            {"name":"Saudi Arabia","continent":"Asia","flag_icon":"🇸🇦","fifa_code":"KSA","group":"H"},
+            {"name":"Uruguay","continent":"South America","flag_icon":"🇺🇾","fifa_code":"URU","group":"H"},
+            {"name":"France","continent":"Europe","flag_icon":"🇫🇷","fifa_code":"FRA","group":"I"},
+            {"name":"Senegal","continent":"Africa","flag_icon":"🇸🇳","fifa_code":"SEN","group":"I"},
+            {"name":"Iraq","continent":"Asia","flag_icon":"🇮🇶","fifa_code":"IRQ","group":"I"},
+            {"name":"Norway","continent":"Europe","flag_icon":"🇳🇴","fifa_code":"NOR","group":"I"},
+            {"name":"Argentina","continent":"South America","flag_icon":"🇦🇷","fifa_code":"ARG","group":"J"},
+            {"name":"Algeria","continent":"Africa","flag_icon":"🇩🇿","fifa_code":"ALG","group":"J"},
+            {"name":"Austria","continent":"Europe","flag_icon":"🇦🇹","fifa_code":"AUT","group":"J"},
+            {"name":"Jordan","continent":"Asia","flag_icon":"🇯🇴","fifa_code":"JOR","group":"J"},
+            {"name":"Portugal","continent":"Europe","flag_icon":"🇵🇹","fifa_code":"POR","group":"K"},
+            {"name":"DR Congo","continent":"Africa","flag_icon":"🇨🇩","fifa_code":"COD","group":"K"},
+            {"name":"Uzbekistan","continent":"Asia","flag_icon":"🇺🇿","fifa_code":"UZB","group":"K"},
+            {"name":"Colombia","continent":"South America","flag_icon":"🇨🇴","fifa_code":"COL","group":"K"},
+            {"name":"England","continent":"Europe","flag_icon":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","fifa_code":"ENG","group":"L"},
+            {"name":"Croatia","continent":"Europe","flag_icon":"🇭🇷","fifa_code":"CRO","group":"L"},
+            {"name":"Ghana","continent":"Africa","flag_icon":"🇬🇭","fifa_code":"GHA","group":"L"},
+            {"name":"Panama","continent":"North America","flag_icon":"🇵🇦","fifa_code":"PAN","group":"L"}
+        ];
+
+        const groupData = {"groups":[
+            {"name":"Group A","teams":["Mexico","South Africa","South Korea","Czech Republic"]},
+            {"name":"Group B","teams":["Canada","Bosnia & Herzegovina","Qatar","Switzerland"]},
+            {"name":"Group C","teams":["Brazil","Morocco","Haiti","Scotland"]},
+            {"name":"Group D","teams":["USA","Paraguay","Australia","Turkey"]},
+            {"name":"Group E","teams":["Germany","Curaçao","Ivory Coast","Ecuador"]},
+            {"name":"Group F","teams":["Netherlands","Japan","Sweden","Tunisia"]},
+            {"name":"Group G","teams":["Belgium","Egypt","Iran","New Zealand"]},
+            {"name":"Group H","teams":["Spain","Cape Verde","Saudi Arabia","Uruguay"]},
+            {"name":"Group I","teams":["France","Senegal","Iraq","Norway"]},
+            {"name":"Group J","teams":["Argentina","Algeria","Austria","Jordan"]},
+            {"name":"Group K","teams":["Portugal","DR Congo","Uzbekistan","Colombia"]},
+            {"name":"Group L","teams":["England","Croatia","Ghana","Panama"]}
+        ]};
+
+        let matchFixtures = [
+            // Group A
+            {"round":"Matchday 1","date":"2026-06-11","time":"13:00 UTC-6","team1":"Mexico","team2":"South Africa","score":{"ft":[2,0]},"group":"Group A","ground":"Mexico City"},
+            {"round":"Matchday 1","date":"2026-06-11","time":"20:00 UTC-6","team1":"South Korea","team2":"Czech Republic","score":{"ft":[2,1]},"group":"Group A","ground":"Guadalajara"},
+            {"round":"Matchday 8","date":"2026-06-18","time":"12:00 UTC-4","team1":"Czech Republic","team2":"South Africa","score":{"ft":[1,1]},"group":"Group A","ground":"Atlanta"},
+            {"round":"Matchday 8","date":"2026-06-18","time":"19:00 UTC-6","team1":"Mexico","team2":"South Korea","score":{"ft":[1,0]},"group":"Group A","ground":"Guadalajara"},
+            {"round":"Matchday 14","date":"2026-06-24","time":"19:00 UTC-6","team1":"Czech Republic","team2":"Mexico","group":"Group A","ground":"Mexico City"},
+            {"round":"Matchday 14","date":"2026-06-24","time":"19:00 UTC-6","team1":"South Africa","team2":"South Korea","group":"Group A","ground":"Monterrey"},
+            // Group B
+            {"round":"Matchday 2","date":"2026-06-12","time":"15:00 UTC-4","team1":"Canada","team2":"Bosnia & Herzegovina","score":{"ft":[1,1]},"group":"Group B","ground":"Toronto"},
+            {"round":"Matchday 3","date":"2026-06-13","time":"12:00 UTC-7","team1":"Qatar","team2":"Switzerland","score":{"ft":[1,1]},"group":"Group B","ground":"San Francisco"},
+            {"round":"Matchday 8","date":"2026-06-18","time":"12:00 UTC-7","team1":"Switzerland","team2":"Bosnia & Herzegovina","score":{"ft":[4,1]},"group":"Group B","ground":"Los Angeles"},
+            {"round":"Matchday 8","date":"2026-06-18","time":"15:00 UTC-7","team1":"Canada","team2":"Qatar","score":{"ft":[6,0]},"group":"Group B","ground":"Vancouver"},
+            {"round":"Matchday 14","date":"2026-06-24","time":"12:00 UTC-7","team1":"Switzerland","team2":"Canada","group":"Group B","ground":"Vancouver"},
+            {"round":"Matchday 14","date":"2026-06-24","time":"12:00 UTC-7","team1":"Bosnia & Herzegovina","team2":"Qatar","group":"Group B","ground":"Seattle"},
+            // Group C
+            {"round":"Matchday 3","date":"2026-06-13","time":"18:00 UTC-4","team1":"Brazil","team2":"Morocco","score":{"ft":[1,1]},"group":"Group C","ground":"New York"},
+            {"round":"Matchday 3","date":"2026-06-13","time":"21:00 UTC-4","team1":"Haiti","team2":"Scotland","score":{"ft":[0,1]},"group":"Group C","ground":"Boston"},
+            {"round":"Matchday 9","date":"2026-06-19","time":"18:00 UTC-4","team1":"Scotland","team2":"Morocco","score":{"ft":[0,1]},"group":"Group C","ground":"Boston"},
+            {"round":"Matchday 9","date":"2026-06-19","time":"20:30 UTC-4","team1":"Brazil","team2":"Haiti","score":{"ft":[3,0]},"group":"Group C","ground":"Philadelphia"},
+            {"round":"Matchday 14","date":"2026-06-24","time":"18:00 UTC-4","team1":"Scotland","team2":"Brazil","group":"Group C","ground":"Miami"},
+            {"round":"Matchday 14","date":"2026-06-24","time":"18:00 UTC-4","team1":"Morocco","team2":"Haiti","group":"Group C","ground":"Atlanta"},
+            // Group D
+            {"round":"Matchday 2","date":"2026-06-12","time":"18:00 UTC-7","team1":"USA","team2":"Paraguay","score":{"ft":[4,1]},"group":"Group D","ground":"Los Angeles"},
+            {"round":"Matchday 3","date":"2026-06-13","time":"21:00 UTC-7","team1":"Australia","team2":"Turkey","score":{"ft":[2,0]},"group":"Group D","ground":"Vancouver"},
+            {"round":"Matchday 9","date":"2026-06-19","time":"12:00 UTC-7","team1":"USA","team2":"Australia","score":{"ft":[2,0]},"group":"Group D","ground":"Seattle"},
+            {"round":"Matchday 9","date":"2026-06-19","time":"20:00 UTC-7","team1":"Turkey","team2":"Paraguay","score":{"ft":[0,1]},"group":"Group D","ground":"San Francisco"},
+            {"round":"Matchday 15","date":"2026-06-25","time":"19:00 UTC-7","team1":"Turkey","team2":"USA","group":"Group D","ground":"Los Angeles"},
+            {"round":"Matchday 15","date":"2026-06-25","time":"19:00 UTC-7","team1":"Paraguay","team2":"Australia","group":"Group D","ground":"San Francisco"},
+            // Group E
+            {"round":"Matchday 4","date":"2026-06-14","time":"12:00 UTC-5","team1":"Germany","team2":"Curaçao","score":{"ft":[7,1]},"group":"Group E","ground":"Houston"},
+            {"round":"Matchday 4","date":"2026-06-14","time":"19:00 UTC-4","team1":"Ivory Coast","team2":"Ecuador","score":{"ft":[1,0]},"group":"Group E","ground":"Philadelphia"},
+            {"round":"Matchday 10","date":"2026-06-20","time":"16:00 UTC-4","team1":"Germany","team2":"Ivory Coast","score":{"ft":[2,1]},"group":"Group E","ground":"Toronto"},
+            {"round":"Matchday 10","date":"2026-06-20","time":"19:00 UTC-5","team1":"Ecuador","team2":"Curaçao","score":{"ft":[0,0]},"group":"Group E","ground":"Kansas City"},
+            {"round":"Matchday 15","date":"2026-06-25","time":"16:00 UTC-4","team1":"Curaçao","team2":"Ivory Coast","group":"Group E","ground":"Philadelphia"},
+            {"round":"Matchday 15","date":"2026-06-25","time":"16:00 UTC-4","team1":"Ecuador","team2":"Germany","group":"Group E","ground":"New York"},
+            // Group F
+            {"round":"Matchday 4","date":"2026-06-14","time":"15:00 UTC-5","team1":"Netherlands","team2":"Japan","score":{"ft":[2,2]},"group":"Group F","ground":"Dallas"},
+            {"round":"Matchday 4","date":"2026-06-14","time":"20:00 UTC-6","team1":"Sweden","team2":"Tunisia","score":{"ft":[5,1]},"group":"Group F","ground":"Monterrey"},
+            {"round":"Matchday 10","date":"2026-06-20","time":"12:00 UTC-5","team1":"Netherlands","team2":"Sweden","score":{"ft":[5,1]},"group":"Group F","ground":"Houston"},
+            {"round":"Matchday 10","date":"2026-06-20","time":"22:00 UTC-6","team1":"Tunisia","team2":"Japan","score":{"ft":[0,4]},"group":"Group F","ground":"Monterrey"},
+            {"round":"Matchday 15","date":"2026-06-25","time":"18:00 UTC-5","team1":"Japan","team2":"Sweden","group":"Group F","ground":"Dallas"},
+            {"round":"Matchday 15","date":"2026-06-25","time":"18:00 UTC-5","team1":"Tunisia","team2":"Netherlands","group":"Group F","ground":"Kansas City"},
+            // Group G
+            {"round":"Matchday 5","date":"2026-06-15","time":"12:00 UTC-7","team1":"Belgium","team2":"Egypt","score":{"ft":[1,1]},"group":"Group G","ground":"Seattle"},
+            {"round":"Matchday 5","date":"2026-06-15","time":"18:00 UTC-7","team1":"Iran","team2":"New Zealand","score":{"ft":[2,2]},"group":"Group G","ground":"Los Angeles"},
+            {"round":"Matchday 11","date":"2026-06-21","time":"12:00 UTC-7","team1":"Belgium","team2":"Iran","group":"Group G","ground":"Los Angeles"},
+            {"round":"Matchday 11","date":"2026-06-21","time":"18:00 UTC-7","team1":"New Zealand","team2":"Egypt","group":"Group G","ground":"Vancouver"},
+            {"round":"Matchday 16","date":"2026-06-26","time":"20:00 UTC-7","team1":"Egypt","team2":"Iran","group":"Group G","ground":"Seattle"},
+            {"round":"Matchday 16","date":"2026-06-26","time":"20:00 UTC-7","team1":"New Zealand","team2":"Belgium","group":"Group G","ground":"Vancouver"},
+            // Group H
+            {"round":"Matchday 5","date":"2026-06-15","time":"12:00 UTC-4","team1":"Spain","team2":"Cape Verde","score":{"ft":[0,0]},"group":"Group H","ground":"Atlanta"},
+            {"round":"Matchday 5","date":"2026-06-15","time":"18:00 UTC-4","team1":"Saudi Arabia","team2":"Uruguay","score":{"ft":[1,1]},"group":"Group H","ground":"Miami"},
+            {"round":"Matchday 11","date":"2026-06-21","time":"12:00 UTC-4","team1":"Spain","team2":"Saudi Arabia","group":"Group H","ground":"Atlanta"},
+            {"round":"Matchday 11","date":"2026-06-21","time":"18:00 UTC-4","team1":"Uruguay","team2":"Cape Verde","group":"Group H","ground":"Miami"},
+            {"round":"Matchday 16","date":"2026-06-26","time":"19:00 UTC-5","team1":"Cape Verde","team2":"Saudi Arabia","group":"Group H","ground":"Houston"},
+            {"round":"Matchday 16","date":"2026-06-26","time":"18:00 UTC-6","team1":"Uruguay","team2":"Spain","group":"Group H","ground":"Guadalajara"},
+            // Group I
+            {"round":"Matchday 6","date":"2026-06-16","time":"15:00 UTC-4","team1":"France","team2":"Senegal","score":{"ft":[3,1]},"group":"Group I","ground":"New York"},
+            {"round":"Matchday 6","date":"2026-06-16","time":"18:00 UTC-4","team1":"Iraq","team2":"Norway","score":{"ft":[1,4]},"group":"Group I","ground":"Boston"},
+            {"round":"Matchday 12","date":"2026-06-22","time":"17:00 UTC-4","team1":"France","team2":"Iraq","group":"Group I","ground":"Philadelphia"},
+            {"round":"Matchday 12","date":"2026-06-22","time":"20:00 UTC-4","team1":"Norway","team2":"Senegal","group":"Group I","ground":"New York"},
+            {"round":"Matchday 16","date":"2026-06-26","time":"15:00 UTC-4","team1":"Norway","team2":"France","group":"Group I","ground":"Boston"},
+            {"round":"Matchday 16","date":"2026-06-26","time":"15:00 UTC-4","team1":"Senegal","team2":"Iraq","group":"Group I","ground":"Toronto"},
+            // Group J
+            {"round":"Matchday 6","date":"2026-06-16","time":"20:00 UTC-5","team1":"Argentina","team2":"Algeria","score":{"ft":[3,0]},"group":"Group J","ground":"Kansas City"},
+            {"round":"Matchday 6","date":"2026-06-16","time":"21:00 UTC-7","team1":"Austria","team2":"Jordan","score":{"ft":[3,1]},"group":"Group J","ground":"San Francisco"},
+            {"round":"Matchday 12","date":"2026-06-22","time":"12:00 UTC-5","team1":"Argentina","team2":"Austria","group":"Group J","ground":"Dallas"},
+            {"round":"Matchday 12","date":"2026-06-22","time":"20:00 UTC-7","team1":"Jordan","team2":"Algeria","group":"Group J","ground":"San Francisco"},
+            {"round":"Matchday 17","date":"2026-06-27","time":"21:00 UTC-5","team1":"Algeria","team2":"Austria","group":"Group J","ground":"Kansas City"},
+            {"round":"Matchday 17","date":"2026-06-27","time":"21:00 UTC-5","team1":"Jordan","team2":"Argentina","group":"Group J","ground":"Dallas"},
+            // Group K
+            {"round":"Matchday 7","date":"2026-06-17","time":"12:00 UTC-5","team1":"Portugal","team2":"DR Congo","score":{"ft":[1,1]},"group":"Group K","ground":"Houston"},
+            {"round":"Matchday 7","date":"2026-06-17","time":"20:00 UTC-6","team1":"Uzbekistan","team2":"Colombia","score":{"ft":[1,3]},"group":"Group K","ground":"Mexico City"},
+            {"round":"Matchday 13","date":"2026-06-23","time":"12:00 UTC-5","team1":"Portugal","team2":"Uzbekistan","group":"Group K","ground":"Houston"},
+            {"round":"Matchday 13","date":"2026-06-23","time":"20:00 UTC-6","team1":"Colombia","team2":"DR Congo","group":"Group K","ground":"Guadalajara"},
+            {"round":"Matchday 17","date":"2026-06-27","time":"19:30 UTC-4","team1":"Colombia","team2":"Portugal","group":"Group K","ground":"Miami"},
+            {"round":"Matchday 17","date":"2026-06-27","time":"19:30 UTC-4","team1":"DR Congo","team2":"Uzbekistan","group":"Group K","ground":"Atlanta"},
+            // Group L
+            {"round":"Matchday 7","date":"2026-06-17","time":"15:00 UTC-5","team1":"England","team2":"Croatia","score":{"ft":[4,2]},"group":"Group L","ground":"Dallas"},
+            {"round":"Matchday 7","date":"2026-06-17","time":"19:00 UTC-4","team1":"Ghana","team2":"Panama","score":{"ft":[1,0]},"group":"Group L","ground":"Toronto"},
+            {"round":"Matchday 13","date":"2026-06-23","time":"16:00 UTC-4","team1":"England","team2":"Ghana","group":"Group L","ground":"Boston"},
+            {"round":"Matchday 13","date":"2026-06-23","time":"19:00 UTC-4","team1":"Panama","team2":"Croatia","group":"Group L","ground":"Toronto"},
+            {"round":"Matchday 17","date":"2026-06-27","time":"17:00 UTC-4","team1":"Panama","team2":"England","group":"Group L","ground":"New York"},
+            {"round":"Matchday 17","date":"2026-06-27","time":"17:00 UTC-4","team1":"Croatia","team2":"Ghana","group":"Group L","ground":"Philadelphia"},
+            // Round of 32
+            {"round":"Round of 32","num":73,"date":"2026-06-28","time":"12:00 UTC-7","team1":"2A","team2":"2B","ground":"Los Angeles"},
+            {"round":"Round of 32","num":74,"date":"2026-06-29","time":"16:30 UTC-4","team1":"1E","team2":"3A/B/C/D/F","ground":"Boston"},
+            {"round":"Round of 32","num":75,"date":"2026-06-29","time":"19:00 UTC-6","team1":"1F","team2":"2C","ground":"Monterrey"},
+            {"round":"Round of 32","num":76,"date":"2026-06-29","time":"12:00 UTC-5","team1":"1C","team2":"2F","ground":"Houston"},
+            {"round":"Round of 32","num":77,"date":"2026-06-30","time":"17:00 UTC-4","team1":"1I","team2":"3C/D/F/G/H","ground":"New York"},
+            {"round":"Round of 32","num":78,"date":"2026-06-30","time":"12:00 UTC-5","team1":"2E","team2":"2I","ground":"Dallas"},
+            {"round":"Round of 32","num":79,"date":"2026-06-30","time":"19:00 UTC-6","team1":"1A","team2":"3C/E/F/H/I","ground":"Mexico City"},
+            {"round":"Round of 32","num":80,"date":"2026-07-01","time":"12:00 UTC-4","team1":"1L","team2":"3E/H/I/J/K","ground":"Atlanta"},
+            {"round":"Round of 32","num":81,"date":"2026-07-01","time":"17:00 UTC-7","team1":"1D","team2":"3B/E/F/I/J","ground":"San Francisco"},
+            {"round":"Round of 32","num":82,"date":"2026-07-01","time":"13:00 UTC-7","team1":"1G","team2":"3A/E/H/I/J","ground":"Seattle"},
+            {"round":"Round of 32","num":83,"date":"2026-07-02","time":"19:00 UTC-4","team1":"2K","team2":"2L","ground":"Toronto"},
+            {"round":"Round of 32","num":84,"date":"2026-07-02","time":"12:00 UTC-7","team1":"1H","team2":"2J","ground":"Los Angeles"},
+            {"round":"Round of 32","num":85,"date":"2026-07-02","time":"20:00 UTC-7","team1":"1B","team2":"3E/F/G/I/J","ground":"Vancouver"},
+            {"round":"Round of 32","num":86,"date":"2026-07-03","time":"18:00 UTC-4","team1":"1J","team2":"2H","ground":"Miami"},
+            {"round":"Round of 32","num":87,"date":"2026-07-03","time":"20:30 UTC-5","team1":"1K","team2":"3D/E/I/J/L","ground":"Kansas City"},
+            {"round":"Round of 32","num":88,"date":"2026-07-03","time":"13:00 UTC-5","team1":"2D","team2":"2G","ground":"Dallas"},
+            // Round of 16
+            {"round":"Round of 16","num":89,"date":"2026-07-04","time":"17:00 UTC-4","team1":"W74","team2":"W77","ground":"Philadelphia"},
+            {"round":"Round of 16","num":90,"date":"2026-07-04","time":"12:00 UTC-5","team1":"W73","team2":"W75","ground":"Houston"},
+            {"round":"Round of 16","num":91,"date":"2026-07-05","time":"16:00 UTC-4","team1":"W76","team2":"W78","ground":"New York"},
+            {"round":"Round of 16","num":92,"date":"2026-07-05","time":"18:00 UTC-6","team1":"W79","team2":"W80","ground":"Mexico City"},
+            {"round":"Round of 16","num":93,"date":"2026-07-06","time":"14:00 UTC-5","team1":"W83","team2":"W84","ground":"Dallas"},
+            {"round":"Round of 16","num":94,"date":"2026-07-06","time":"17:00 UTC-7","team1":"W81","team2":"W82","ground":"Seattle"},
+            {"round":"Round of 16","num":95,"date":"2026-07-07","time":"12:00 UTC-4","team1":"W86","team2":"W88","ground":"Atlanta"},
+            {"round":"Round of 16","num":96,"date":"2026-07-07","time":"13:00 UTC-7","team1":"W85","team2":"W87","ground":"Vancouver"},
+            // Quarter-finals
+            {"round":"Quarter-final","num":97,"date":"2026-07-09","time":"16:00 UTC-4","team1":"W89","team2":"W90","ground":"Boston"},
+            {"round":"Quarter-final","num":98,"date":"2026-07-10","time":"12:00 UTC-7","team1":"W93","team2":"W94","ground":"Los Angeles"},
+            {"round":"Quarter-final","num":99,"date":"2026-07-11","time":"17:00 UTC-4","team1":"W91","team2":"W92","ground":"Miami"},
+            {"round":"Quarter-final","num":100,"date":"2026-07-11","time":"20:00 UTC-5","team1":"W95","team2":"W96","ground":"Kansas City"},
+            // Semi-finals
+            {"round":"Semi-final","num":101,"date":"2026-07-14","time":"14:00 UTC-5","team1":"W97","team2":"W98","ground":"Dallas"},
+            {"round":"Semi-final","num":102,"date":"2026-07-15","time":"15:00 UTC-4","team1":"W99","team2":"W100","ground":"Atlanta"},
+            // 3rd place & Final
+            {"round":"Match for third place","num":103,"date":"2026-07-18","time":"17:00 UTC-4","team1":"L101","team2":"L102","ground":"Miami"},
+            {"round":"Final","num":104,"date":"2026-07-19","time":"15:00 UTC-4","team1":"W101","team2":"W102","ground":"New York"}
+        ];
+
+        // ── Standings Calculation ──────────────────────────────────────────────
+        function computeStandings() {
+            const raw = {};
+            groupData.groups.forEach(g => {
+                raw[g.name] = {};
+                g.teams.forEach(t => { raw[g.name][t] = {P:0,W:0,D:0,L:0,GF:0,GA:0}; });
+            });
+            matchFixtures.forEach(match => {
+                if (!match.group || !match.score?.ft) return;
+                const g = match.group;
+                const [s1, s2] = match.score.ft;
+                if (!raw[g]) return;
+                const a = raw[g][match.team1] || (raw[g][match.team1] = {P:0,W:0,D:0,L:0,GF:0,GA:0});
+                const b = raw[g][match.team2] || (raw[g][match.team2] = {P:0,W:0,D:0,L:0,GF:0,GA:0});
+                a.P++; b.P++;
+                a.GF += s1; a.GA += s2;
+                b.GF += s2; b.GA += s1;
+                if (s1 > s2)      { a.W++; b.L++; }
+                else if (s1 < s2) { b.W++; a.L++; }
+                else              { a.D++; b.D++; }
+            });
+            const result = {};
+            Object.entries(raw).forEach(([gname, teams]) => {
+                result[gname] = Object.entries(teams).map(([name, s]) => ({
+                    name, P:s.P, W:s.W, D:s.D, L:s.L, GF:s.GF, GA:s.GA,
+                    GD: s.GF - s.GA, PTS: s.W * 3 + s.D
+                })).sort((a,b) => b.PTS-a.PTS || b.GD-a.GD || b.GF-a.GF);
+            });
+            return result;
+        }
+
+        // Greedy assignment: 8 best 3rd-place teams → their allowed R32 slots.
+        // Most-restrictive slots (fewest allowed groups) are assigned first.
+        function assignThirdPlaceTeams(standings) {
+            const allThirds = Object.entries(standings).map(([gname, teams]) => {
+                const letter = gname.replace('Group ', '');
+                return teams[2] ? {...teams[2], groupLetter: letter} : null;
+            }).filter(Boolean).sort((a,b) => b.PTS-a.PTS || b.GD-a.GD || b.GF-a.GF);
+
+            const top8 = allThirds.slice(0, 8);
+
+            const slotDefs = {
+                74:['A','B','C','D','F'], 77:['C','D','F','G','H'],
+                79:['C','E','F','H','I'], 80:['E','H','I','J','K'],
+                81:['B','E','F','I','J'], 82:['A','E','H','I','J'],
+                85:['E','F','G','I','J'], 87:['D','E','I','J','L']
+            };
+            const byRestrictiveness = Object.entries(slotDefs)
+                .sort((a,b) => a[1].length - b[1].length);
+            const used = new Set(), assignment = {};
+            byRestrictiveness.forEach(([slotNum, allowed]) => {
+                const best = top8.find(t => allowed.includes(t.groupLetter) && !used.has(t.name));
+                if (best) { assignment[parseInt(slotNum)] = best.name; used.add(best.name); }
+            });
+            return assignment;
+        }
+
+        // Recursively resolve a placeholder ("1A", "2B", "3A/B/…", "W73", "L101") to a team name.
+        function resolveTeam(name, matchNum, standings, thirdAssign, matchLookup) {
+            const gp = name.match(/^([12])([A-L])$/);
+            if (gp) {
+                const grp = standings['Group ' + gp[2]];
+                return (grp?.[parseInt(gp[1]) - 1]?.name) || name;
+            }
+            if (/^3[A-L]/.test(name)) {
+                return thirdAssign[matchNum] || name;
+            }
+            const wm = name.match(/^W(\d+)$/);
+            if (wm) {
+                const m = matchLookup[parseInt(wm[1])];
+                if (m?.score?.ft) {
+                    const [s1, s2] = m.score.ft;
+                    if (s1 !== s2) return resolveTeam(s1 > s2 ? m.team1 : m.team2, m.num, standings, thirdAssign, matchLookup);
+                }
+                return name;
+            }
+            const lm = name.match(/^L(\d+)$/);
+            if (lm) {
+                const m = matchLookup[parseInt(lm[1])];
+                if (m?.score?.ft) {
+                    const [s1, s2] = m.score.ft;
+                    if (s1 !== s2) return resolveTeam(s1 > s2 ? m.team2 : m.team1, m.num, standings, thirdAssign, matchLookup);
+                }
+                return name;
+            }
+            return name; // already a real team name
+        }
+
+        // ── Tab Switching ──────────────────────────────────────────────────────
+        function switchTab(view) {
+            ['groups','schedule','knockout'].forEach(v => {
+                document.getElementById('view-' + v).classList.toggle('hidden', view !== v);
+                const tab = document.getElementById('tab-' + v);
+                if (tab) tab.className = view === v
+                    ? "px-6 py-3 font-semibold text-sm border-b-2 border-yellow-500 text-yellow-500 whitespace-nowrap"
+                    : "px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-400 hover:text-gray-200 whitespace-nowrap";
+            });
+            // Re-render the destination tab so it always reflects latest scores
+            if (view === 'groups')   renderGroups();
+            if (view === 'knockout') renderKnockout();
+        }
+
+        function findTeam(name) {
+            return teamData.find(t => t.name === name) || {"flag_icon":"🏳️","fifa_code": name.length > 5 ? name.substring(0,5) : name};
+        }
+
+        // ── Group Standings ────────────────────────────────────────────────────
+        function renderGroups() {
+            const container = document.getElementById('view-groups');
+            container.innerHTML = '';
+            const standings = computeStandings();
+
+            groupData.groups.forEach(g => {
+                const rows = standings[g.name] || [];
+                let html = `
+                    <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-xl">
+                        <div class="bg-gray-800 px-4 py-3 border-b border-gray-700 flex justify-between items-center">
+                            <h3 class="font-bold text-yellow-500 tracking-wide">${g.name}</h3>
+                            <span class="text-xs text-gray-500 font-mono">Live standings</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                        <table class="w-full" style="font-size:11px;min-width:300px;">
+                            <thead>
+                                <tr class="bg-gray-800/50 border-b border-gray-700">
+                                    <th class="text-center py-1.5 px-1 w-5 text-gray-500 font-semibold">#</th>
+                                    <th class="text-left py-1.5 px-2 text-gray-400 font-semibold">Team</th>
+                                    <th class="text-center py-1.5 px-1 w-6 text-gray-400 font-semibold" title="Played">P</th>
+                                    <th class="text-center py-1.5 px-1 w-6 text-emerald-500 font-semibold" title="Won">W</th>
+                                    <th class="text-center py-1.5 px-1 w-6 text-gray-400 font-semibold" title="Drawn">D</th>
+                                    <th class="text-center py-1.5 px-1 w-6 text-red-400 font-semibold" title="Lost">L</th>
+                                    <th class="text-center py-1.5 px-1 w-7 text-gray-400 font-semibold" title="Goals For">GF</th>
+                                    <th class="text-center py-1.5 px-1 w-7 text-gray-400 font-semibold" title="Goals Against">GA</th>
+                                    <th class="text-center py-1.5 px-1 w-7 text-gray-400 font-semibold" title="Goal Difference">GD</th>
+                                    <th class="text-center py-1.5 px-2 w-8 text-yellow-500 font-bold" title="Points">Pts</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                rows.forEach((team, i) => {
+                    const info = findTeam(team.name);
+                    const qualBar = i < 2 ? 'border-l-2 border-emerald-500' : i === 2 ? 'border-l-2 border-amber-500' : '';
+                    const gdTxt   = team.GD > 0 ? '+' + team.GD : String(team.GD);
+                    const gdColor = team.GD > 0 ? 'text-emerald-400' : team.GD < 0 ? 'text-red-400' : 'text-gray-400';
+                    html += `
+                        <tr class="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors ${qualBar}">
+                            <td class="text-center py-2 px-1 text-gray-500 font-mono">${i+1}</td>
+                            <td class="py-2 px-2">
+                                <div class="flex items-center gap-1.5">
+                                    <span style="font-size:13px;line-height:1;">${info.flag_icon}</span>
+                                    <span class="text-gray-200 font-medium truncate" style="max-width:90px;">${team.name}</span>
+                                </div>
+                            </td>
+                            <td class="text-center py-2 px-1 text-gray-300">${team.P}</td>
+                            <td class="text-center py-2 px-1 text-emerald-400 font-medium">${team.W}</td>
+                            <td class="text-center py-2 px-1 text-gray-400">${team.D}</td>
+                            <td class="text-center py-2 px-1 text-red-400">${team.L}</td>
+                            <td class="text-center py-2 px-1 text-gray-300">${team.GF}</td>
+                            <td class="text-center py-2 px-1 text-gray-300">${team.GA}</td>
+                            <td class="text-center py-2 px-1 ${gdColor} font-medium">${gdTxt}</td>
+                            <td class="text-center py-2 px-2 text-yellow-400 font-bold">${team.PTS}</td>
+                        </tr>
+                    `;
+                });
+                html += `
+                            </tbody>
+                        </table>
+                        </div>
+                        <div class="px-3 py-1.5 border-t border-gray-800 flex gap-4 text-[9px] text-gray-500 font-mono">
+                            <span class="flex items-center gap-1.5"><span class="inline-block w-0.5 h-3 bg-emerald-500 rounded-full"></span> Qualify (Top 2)</span>
+                            <span class="flex items-center gap-1.5"><span class="inline-block w-0.5 h-3 bg-amber-500 rounded-full"></span> Potential 3rd qualifier</span>
+                        </div>
+                    </div>`;
+                container.innerHTML += html;
+            });
+        }
+
+        // ── Group Fixtures ─────────────────────────────────────────────────────
+        let showAllFixtures = false;
+
+        function toggleFixtureView(checked) {
+            showAllFixtures = checked;
+            renderFixtures();
+        }
+
+        function fmtDate(dateStr) {
+            // "2026-06-21" → "Sat, Jun 21 2026"
+            return new Date(dateStr + 'T12:00:00')
+                .toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', year:'numeric'});
+        }
+
+        function renderFixtures() {
+            const groupWrap = document.getElementById('fixtures-group');
+            const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+
+            // Collect group-stage fixtures, preserving their original array index for updateScore
+            let fixtures = [];
+            matchFixtures.forEach((m, idx) => {
+                if (m.num !== undefined) return;
+                fixtures.push({...m, _idx: idx});
+            });
+
+            if (!showAllFixtures) {
+                // Default: past + today only, most-recent date first
+                fixtures = fixtures.filter(m => m.date <= today);
+                fixtures.sort((a, b) =>
+                    b.date !== a.date ? b.date.localeCompare(a.date) : a.time.localeCompare(b.time));
+            } else {
+                // All fixtures, chronological (Matchday 1 → last)
+                fixtures.sort((a, b) =>
+                    a.date !== b.date ? a.date.localeCompare(b.date) : a.time.localeCompare(b.time));
+            }
+
+            if (fixtures.length === 0) {
+                groupWrap.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-500 text-sm leading-relaxed">
+                        No past or current fixtures yet.<br>
+                        <span class="text-gray-600">Enable the toggle above to see upcoming matches.</span>
+                    </div>`;
+                return;
+            }
+
+            let html = '';
+            let lastDate = null;
+
+            fixtures.forEach(match => {
+                // Date separator
+                if (match.date !== lastDate) {
+                    lastDate = match.date;
+                    const isToday  = match.date === today;
+                    const isFuture = match.date > today;
+                    const dotCls   = isToday  ? 'bg-emerald-500 animate-pulse'
+                                   : isFuture ? 'bg-blue-500' : 'bg-gray-600';
+                    const txtCls   = isToday  ? 'text-emerald-400'
+                                   : isFuture ? 'text-blue-400' : 'text-gray-500';
+                    const prefix   = isToday  ? 'Today — '
+                                   : isFuture ? 'Upcoming — ' : '';
+                    html += `
+                        <div class="col-span-full flex items-center gap-2 pt-5 pb-2 first:pt-0">
+                            <span class="w-2 h-2 rounded-full ${dotCls} flex-shrink-0"></span>
+                            <span class="text-[10px] font-bold tracking-widest uppercase ${txtCls}">${prefix}${fmtDate(match.date)}</span>
+                            <span class="flex-1 border-t border-gray-800/60"></span>
+                        </div>`;
+                }
+
+                const t1 = findTeam(match.team1);
+                const t2 = findTeam(match.team2);
+                const s1 = match.score?.ft != null ? match.score.ft[0] : '';
+                const s2 = match.score?.ft != null ? match.score.ft[1] : '';
+                const isToday  = match.date === today;
+                const isFuture = match.date > today;
+                const cardBorder = isToday  ? 'border-emerald-900/60 hover:border-emerald-700'
+                                 : isFuture ? 'border-blue-900/40 hover:border-blue-800'
+                                 :            'border-gray-800 hover:border-gray-700';
+
+                html += `
+                    <div class="bg-gray-900 border ${cardBorder} rounded-xl p-4 flex flex-col shadow-md transition-all">
+                        <div class="flex items-center justify-between text-xs text-gray-400 border-b border-gray-800 pb-2 mb-3">
+                            <span class="font-semibold text-amber-500">${match.round}</span>
+                            <span class="font-mono bg-gray-950 px-2 py-0.5 rounded text-gray-500">${match.time}</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <span class="text-xl flex-shrink-0">${t1.flag_icon}</span>
+                                    <span class="text-sm font-semibold text-gray-200 truncate">${match.team1}</span>
+                                </div>
+                                <input type="number" value="${s1}" min="0" placeholder="-"
+                                    onchange="updateScore(${match._idx},0,this.value)"
+                                    class="w-12 h-8 bg-gray-950 border border-gray-800 text-center rounded-md font-bold text-yellow-400 focus:outline-none focus:border-yellow-500 text-sm">
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <span class="text-xl flex-shrink-0">${t2.flag_icon}</span>
+                                    <span class="text-sm font-semibold text-gray-200 truncate">${match.team2}</span>
+                                </div>
+                                <input type="number" value="${s2}" min="0" placeholder="-"
+                                    onchange="updateScore(${match._idx},1,this.value)"
+                                    class="w-12 h-8 bg-gray-950 border border-gray-800 text-center rounded-md font-bold text-yellow-400 focus:outline-none focus:border-yellow-500 text-sm">
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-gray-800/60 flex items-center justify-between text-[11px] text-gray-500 font-mono">
+                            <span>📍 ${match.ground}</span>
+                            <span class="text-gray-400 font-sans font-semibold">${match.group || ''}</span>
+                        </div>
+                    </div>`;
+            });
+
+            groupWrap.innerHTML = html;
+        }
+
+        // ── Knockout Bracket (horizontal columns) ──────────────────────────────
+        function renderKnockout() {
+            const container = document.getElementById('knockout-grid');
+
+            // Build a lookup: match number → { match data, fixture array index }
+            const matchByNum = {};
+            matchFixtures.forEach((m, i) => {
+                if (m.num !== undefined) matchByNum[m.num] = {...m, idx: i};
+            });
+
+            // Resolve team names from current group standings
+            const standings    = computeStandings();
+            const thirdAssign  = assignThirdPlaceTeams(standings);
+
+            // Bracket layout: [matchNum, gridColumn (1-based), gridRowStart (1-based), rowSpan]
+            // 16 rows total. Bracket order from top to bottom feeds:
+            //   rows  1-4  → QF #97 → SF #101 → Final #104
+            //   rows  5-8  → QF #98 → SF #101
+            //   rows  9-12 → QF #99 → SF #102 → Final #104
+            //   rows 13-16 → QF #100 → SF #102
+            const layout = [
+                // Round of 32 — col 1
+                [73,1,1,1],[75,1,2,1],   // → R16 #90
+                [74,1,3,1],[77,1,4,1],   // → R16 #89
+                [83,1,5,1],[84,1,6,1],   // → R16 #93
+                [81,1,7,1],[82,1,8,1],   // → R16 #94
+                [76,1,9,1],[78,1,10,1],  // → R16 #91
+                [79,1,11,1],[80,1,12,1], // → R16 #92
+                [86,1,13,1],[88,1,14,1], // → R16 #95
+                [85,1,15,1],[87,1,16,1], // → R16 #96
+                // Round of 16 — col 2
+                [90,2,1,2],[89,2,3,2],   // → QF #97
+                [93,2,5,2],[94,2,7,2],   // → QF #98
+                [91,2,9,2],[92,2,11,2],  // → QF #99
+                [95,2,13,2],[96,2,15,2], // → QF #100
+                // Quarter-finals — col 3
+                [97,3,1,4],[98,3,5,4],   // → SF #101
+                [99,3,9,4],[100,3,13,4], // → SF #102
+                // Semi-finals — col 4
+                [101,4,1,8],[102,4,9,8], // → Final #104
+                // Final & 3rd place — col 5
+                [104,5,5,8],  // Final — centred across both SF rows
+                [103,5,14,3], // 3rd place — below
+            ];
+
+            const ROW_H = 72;   // px per row
+            const COL_W = 215;  // px per column
+            const GAP   = 6;    // px gap
+            const ROWS  = 16;
+            const COLS  = 5;
+            const totalW = COLS * COL_W + (COLS - 1) * GAP;
+            const totalH = ROWS * ROW_H + (ROWS - 1) * GAP;
+
+            const roundLabels = ['Round of 32','Round of 16','Quarter-finals','Semi-finals','Final'];
+
+            // Header row
+            let headersHtml = `<div style="display:grid;grid-template-columns:repeat(${COLS},${COL_W}px);gap:${GAP}px;margin-bottom:8px;">`;
+            roundLabels.forEach((label, i) => {
+                const gold = i === 4;
+                headersHtml += `
+                    <div class="text-center py-2 text-xs font-bold ${gold ? 'text-yellow-400 bg-gray-800/80 border border-yellow-900' : 'text-amber-500 bg-gray-800'} rounded-lg">
+                        ${gold ? '<i class="fa-solid fa-trophy mr-1 text-yellow-500"></i>' : ''}${label}
+                    </div>`;
+            });
+            headersHtml += `</div>`;
+
+            // Match cards inside CSS grid
+            let gridHtml = `<div style="display:grid;grid-template-columns:repeat(${COLS},${COL_W}px);grid-template-rows:repeat(${ROWS},${ROW_H}px);gap:${GAP}px;height:${totalH}px;">`;
+
+            layout.forEach(([num, col, rowStart, rowSpan]) => {
+                const match = matchByNum[num];
+                if (!match) return;
+
+                // Resolve placeholders → actual team names where possible
+                const name1 = resolveTeam(match.team1, num, standings, thirdAssign, matchByNum);
+                const name2 = resolveTeam(match.team2, num, standings, thirdAssign, matchByNum);
+                const isPending1 = name1 === match.team1 && /^[123WL]/.test(match.team1);
+                const isPending2 = name2 === match.team2 && /^[123WL]/.test(match.team2);
+
+                const t1 = findTeam(name1);
+                const t2 = findTeam(name2);
+                const s1 = match.score?.ft != null ? match.score.ft[0] : '';
+                const s2 = match.score?.ft != null ? match.score.ft[1] : '';
+                const isFinal   = num === 104;
+                const isThird   = num === 103;
+                const isCompact = rowSpan === 1; // R32 only
+
+                const borderCls = isFinal
+                    ? 'border-yellow-500 shadow-yellow-900/40 shadow-lg'
+                    : isThird ? 'border-purple-600' : 'border-gray-700';
+
+                // Helper: render one team row — data-* attrs enable targeted DOM updates
+                const teamRowCompact = (flag, label, isPending, scoreVal, teamIdx) => `
+                    <div class="flex items-center justify-between gap-1">
+                        <div class="flex items-center gap-1 flex-1 min-w-0">
+                            <span data-flag-match="${num}" data-flag-team="${teamIdx}" style="font-size:14px;line-height:1;">${flag}</span>
+                            <span data-label-match="${num}" data-label-team="${teamIdx}" class="${isPending ? 'text-gray-500 italic' : 'text-gray-200 font-medium'} truncate" style="font-size:10px;">${label}</span>
+                        </div>
+                        <input type="number" value="${scoreVal}" min="0" placeholder="-"
+                            onchange="updateScore(${match.idx},${teamIdx},this.value)"
+                            class="bg-gray-950 border border-gray-800 text-center rounded font-bold text-yellow-400 focus:outline-none focus:border-yellow-500 flex-shrink-0"
+                            style="width:26px;height:20px;font-size:10px;">
+                    </div>`;
+
+                const teamRowStd = (flag, label, isPending, scoreVal, teamIdx, fs, ifs) => `
+                    <div class="flex items-center justify-between gap-1">
+                        <div class="flex items-center gap-2 flex-1 min-w-0">
+                            <span data-flag-match="${num}" data-flag-team="${teamIdx}" style="font-size:${fs};line-height:1;flex-shrink:0;">${flag}</span>
+                            <span data-label-match="${num}" data-label-team="${teamIdx}" class="${isPending ? 'text-gray-500 italic' : 'font-semibold text-gray-200'} truncate" style="font-size:${ifs};">${label}</span>
+                        </div>
+                        <input type="number" value="${scoreVal}" min="0" placeholder="-"
+                            onchange="updateScore(${match.idx},${teamIdx},this.value)"
+                            class="bg-gray-950 border border-gray-800 text-center rounded-lg font-bold text-yellow-400 focus:outline-none focus:border-yellow-500 flex-shrink-0"
+                            style="width:${rowSpan>=4?'36':'30'}px;height:${rowSpan>=4?'30':'24'}px;font-size:${rowSpan>=4?'14':'12'}px;">
+                    </div>`;
+
+                let cardInner;
+
+                if (isCompact) {
+                    cardInner = `
+                        <div class="h-full bg-gray-900 border ${borderCls} rounded-lg flex flex-col justify-between overflow-hidden" style="padding:4px 6px;">
+                            <div class="flex justify-between items-center" style="font-size:9px;line-height:1.2;">
+                                <span class="text-amber-600 font-mono font-semibold">#${num}</span>
+                                <span class="text-gray-600 font-mono">${match.date.slice(5)}</span>
+                            </div>
+                            ${teamRowCompact(t1.flag_icon, name1, isPending1, s1, 0)}
+                            ${teamRowCompact(t2.flag_icon, name2, isPending2, s2, 1)}
+                        </div>`;
+                } else {
+                    const labelText = isFinal ? '🏆 FINAL' : isThird ? '🥉 3rd Place' : `#${num} · ${match.round}`;
+                    const labelCls  = isFinal ? 'text-yellow-400' : isThird ? 'text-purple-400' : 'text-amber-500';
+                    const paddingCls = rowSpan >= 4 ? 'p-3' : 'p-2';
+                    const flagFs    = rowSpan >= 4 ? '22px' : '18px';
+                    const nameFs    = rowSpan >= 4 ? '14px' : '12px';
+
+                    cardInner = `
+                        <div class="h-full bg-gray-900 border ${borderCls} rounded-xl ${paddingCls} flex flex-col justify-between overflow-hidden">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="font-bold ${labelCls}" style="font-size:11px;">${labelText}</span>
+                                    <span class="text-gray-500 font-mono" style="font-size:9px;">${match.date}</span>
+                                </div>
+                                <div class="mb-2">${teamRowStd(t1.flag_icon, name1, isPending1, s1, 0, flagFs, nameFs)}</div>
+                                ${teamRowStd(t2.flag_icon, name2, isPending2, s2, 1, flagFs, nameFs)}
+                            </div>
+                            <div class="text-gray-500 font-mono truncate mt-2" style="font-size:9px;">
+                                📍 ${match.ground} · ${match.time}
+                            </div>
+                        </div>`;
+                }
+
+                gridHtml += `<div style="grid-column:${col};grid-row:${rowStart}/span ${rowSpan};padding:2px;">${cardInner}</div>`;
+            });
+
+            gridHtml += `</div>`;
+
+            container.innerHTML = `
+                <div class="overflow-x-auto overflow-y-auto custom-scrollbar pb-4" style="max-height:calc(100vh - 180px);">
+                    <div style="width:${totalW}px;min-width:${totalW}px;">
+                        ${headersHtml}
+                        ${gridHtml}
+                    </div>
+                </div>`;
+        }
+
+        // ── Targeted knockout name refresh (no re-render — preserves focused inputs) ──
+        function refreshKnockoutNames() {
+            const matchByNum = {};
+            matchFixtures.forEach((m, i) => {
+                if (m.num !== undefined) matchByNum[m.num] = {...m, idx: i};
+            });
+            const standings   = computeStandings();
+            const thirdAssign = assignThirdPlaceTeams(standings);
+
+            matchFixtures.forEach(m => {
+                if (m.num === undefined) return;
+                [0, 1].forEach(teamIdx => {
+                    const rawName  = teamIdx === 0 ? m.team1 : m.team2;
+                    const resolved = resolveTeam(rawName, m.num, standings, thirdAssign, matchByNum);
+                    const isPending = resolved === rawName && /^[123WL]/.test(rawName);
+                    const info = findTeam(resolved);
+
+                    const flagEl  = document.querySelector(`[data-flag-match="${m.num}"][data-flag-team="${teamIdx}"]`);
+                    const labelEl = document.querySelector(`[data-label-match="${m.num}"][data-label-team="${teamIdx}"]`);
+
+                    if (flagEl)  flagEl.textContent = info.flag_icon;
+                    if (labelEl) {
+                        labelEl.textContent = resolved;
+                        if (isPending) {
+                            labelEl.classList.add('italic', 'text-gray-500');
+                            labelEl.classList.remove('text-gray-200', 'font-medium', 'font-semibold');
+                        } else {
+                            labelEl.classList.remove('italic', 'text-gray-500');
+                            labelEl.classList.add('text-gray-200');
+                        }
+                    }
+                });
+            });
+        }
+
+        // ── Score update ───────────────────────────────────────────────────────
+        function updateScore(index, teamIndex, val) {
+            if (val === '') {
+                if (matchFixtures[index].score) delete matchFixtures[index].score;
+            } else {
+                if (!matchFixtures[index].score) matchFixtures[index].score = {ft:[0,0]};
+                matchFixtures[index].score.ft[teamIndex] = parseInt(val, 10);
+            }
+            // Standings are safe to re-render any time (no focused inputs there)
+            renderGroups();
+            if (document.getElementById('view-knockout').classList.contains('hidden')) {
+                // Knockout tab not visible — full re-render is fine
+                renderKnockout();
+            } else {
+                // Knockout tab visible — only patch name/flag text so focused inputs survive
+                refreshKnockoutNames();
+            }
+        }
+
+        // ── Reset all scores ───────────────────────────────────────────────────
+        function resetAllScores() {
+            if (!confirm('Clear all entered scores across every match? This cannot be undone.')) return;
+            matchFixtures.forEach(m => { delete m.score; });
+            renderGroups();
+            renderFixtures();
+            renderKnockout();
+        }
+
+        // ── Import / Export ────────────────────────────────────────────────────
+        function syncTodayScores() {
+            const a = document.createElement('a');
+            a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(matchFixtures, null, 2));
+            a.download = "worldcup2026_scores.json";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        }
+
+        function triggerImport() { document.getElementById('import-file').click(); }
+
+        function handleImport(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = evt => {
+                try {
+                    const data = JSON.parse(evt.target.result);
+                    if (Array.isArray(data)) {
+                        matchFixtures = data;
+                        renderGroups();
+                        renderFixtures();
+                        renderKnockout();
+                        alert("Data imported successfully.");
+                    }
+                } catch { alert("Invalid JSON file."); }
+            };
+            reader.readAsText(file);
+        }
+
+        // ── Boot ───────────────────────────────────────────────────────────────
+        window.onload = function () {
+            renderGroups();
+            renderFixtures();
+            renderKnockout();
+        };
+    </script>
+</body>
+</html>
