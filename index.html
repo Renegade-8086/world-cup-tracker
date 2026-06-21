@@ -10,6 +10,78 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #1f2937; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 3px; }
+
+        /* ── Group Standings cards ── */
+        .gc-card {
+            display: flex;
+            flex-direction: column;
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .gc-card:hover { border-color: #374151; box-shadow: 0 0 0 1px #374151, 0 8px 24px rgba(0,0,0,.4); }
+
+        /* 7-column grid: pos | team | P | W·D·L | GF·GA | GD | Pts */
+        .gc-row {
+            display: grid;
+            grid-template-columns: 18px 1fr 22px 50px 38px 30px 36px;
+            align-items: center;
+            column-gap: 4px;
+            padding: 0 12px;
+        }
+        .gc-col-hdr { padding: 6px 0 5px; background: rgba(31,41,55,.6); border-bottom: 1px solid rgba(55,65,81,.5); }
+        .gc-col-hdr span { font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #6b7280; text-align: center; }
+        .gc-col-hdr span:nth-child(2) { text-align: left; }
+        .gc-col-hdr span:last-child { color: #ca8a04; }
+
+        .gc-team-row {
+            padding-top: 7px;
+            padding-bottom: 7px;
+            border-bottom: 1px solid rgba(31,41,55,.7);
+            transition: background .12s;
+            position: relative;
+        }
+        .gc-team-row:last-of-type { border-bottom: none; }
+        .gc-team-row:hover { background: rgba(255,255,255,.025); }
+
+        /* Qualification zone: left accent bar */
+        .gc-qualify-1 { border-left: 2px solid #10b981; background: rgba(16,185,129,.04); }
+        .gc-qualify-2 { border-left: 2px solid #10b981; background: rgba(16,185,129,.04); }
+        .gc-qualify-3 { border-left: 2px solid #f59e0b; background: rgba(245,158,11,.03); }
+        .gc-qualify-4 { border-left: 2px solid transparent; }
+
+        .gc-pos  { font-size: 10px; font-weight: 700; font-family: ui-monospace,monospace; text-align: center; }
+        .gc-name { font-size: 11.5px; font-weight: 500; color: #e5e7eb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .gc-num  { font-size: 11px; font-family: ui-monospace,monospace; color: #6b7280; text-align: center; }
+        .gc-rec  { font-size: 10px; font-family: ui-monospace,monospace; color: #4b5563; text-align: center; letter-spacing: .02em; }
+        .gc-gfa  { font-size: 10px; font-family: ui-monospace,monospace; color: #4b5563; text-align: center; }
+        .gc-gd   { font-size: 11px; font-family: ui-monospace,monospace; font-weight: 600; text-align: center; }
+        .gc-pts  { font-size: 14px; font-weight: 800; color: #fbbf24; text-align: center; }
+        .gc-pts-zero { color: #374151; }
+
+        .gc-gd-pos { color: #34d399; }
+        .gc-gd-neg { color: #f87171; }
+        .gc-gd-neu { color: #4b5563; }
+
+        /* Match progress bar under header */
+        .gc-progress-track { height: 2px; background: #1f2937; }
+        .gc-progress-fill  { height: 100%; background: linear-gradient(90deg, #f59e0b, #f97316); border-radius: 0 1px 1px 0; transition: width .4s; }
+
+        .gc-legend { display: flex; gap: 14px; padding: 6px 12px; border-top: 1px solid rgba(31,41,55,.8); }
+        .gc-legend span { display: flex; align-items: center; gap: 5px; font-size: 9px; color: #4b5563; font-weight: 500; }
+        .gc-legend-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+        .gc-status-badge {
+            font-size: 9px; font-weight: 600; letter-spacing: .04em;
+            padding: 1px 6px; border-radius: 99px; font-family: ui-monospace,monospace;
+        }
+        .gc-status-live    { background: rgba(239,68,68,.15); color: #f87171; }
+        .gc-status-partial { background: rgba(245,158,11,.12); color: #fbbf24; }
+        .gc-status-done    { background: rgba(16,185,129,.12); color: #34d399; }
+        .gc-status-pre     { background: rgba(75,85,99,.2);    color: #6b7280; }
+
         .bracket-connector {
             position: relative;
         }
@@ -69,7 +141,7 @@
     <main class="max-w-screen-2xl mx-auto px-4 py-8">
 
         <!-- Tab 1: Group Standings -->
-        <div id="view-groups" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+        <div id="view-groups" class="grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4"></div>
 
         <!-- Tab 2: Group Fixtures -->
         <div id="view-schedule" class="hidden">
@@ -461,65 +533,74 @@
             const standings = computeStandings();
 
             groupData.groups.forEach(g => {
-                const rows = standings[g.name] || [];
+                const rows   = standings[g.name] || [];
+                const played = matchFixtures.filter(m => m.group === g.name && m.score?.ft).length;
+                const total  = matchFixtures.filter(m => m.group === g.name).length;
+                const pct    = total ? Math.round((played / total) * 100) : 0;
+
+                // Status badge
+                let statusHtml;
+                if (played === 0)     statusHtml = `<span class="gc-status-badge gc-status-pre">Not started</span>`;
+                else if (played < total) statusHtml = `<span class="gc-status-badge gc-status-partial">${played}/${total} played</span>`;
+                else                     statusHtml = `<span class="gc-status-badge gc-status-done">Complete</span>`;
+
+                // Letter only (A–L) for the accent label
+                const letter = g.name.replace('Group ', '');
+
                 let html = `
-                    <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-xl">
-                        <div class="bg-gray-800 px-4 py-3 border-b border-gray-700 flex justify-between items-center">
-                            <h3 class="font-bold text-yellow-500 tracking-wide">${g.name}</h3>
-                            <span class="text-xs text-gray-500 font-mono">Live standings</span>
+                <div class="gc-card">
+                    <div style="background:linear-gradient(135deg,#1a2234 0%,#0f172a 100%);padding:10px 12px 8px;border-bottom:1px solid #1e2d3d;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <span style="font-size:18px;font-weight:900;color:#fbbf24;letter-spacing:-.01em;line-height:1;">Group</span>
+                                <span style="font-size:26px;font-weight:900;color:#fbbf24;line-height:1;">${letter}</span>
+                            </div>
+                            ${statusHtml}
                         </div>
-                        <div class="overflow-x-auto">
-                        <table class="w-full" style="font-size:11px;min-width:300px;">
-                            <thead>
-                                <tr class="bg-gray-800/50 border-b border-gray-700">
-                                    <th class="text-center py-1.5 px-1 w-5 text-gray-500 font-semibold">#</th>
-                                    <th class="text-left py-1.5 px-2 text-gray-400 font-semibold">Team</th>
-                                    <th class="text-center py-1.5 px-1 w-6 text-gray-400 font-semibold" title="Played">P</th>
-                                    <th class="text-center py-1.5 px-1 w-6 text-emerald-500 font-semibold" title="Won">W</th>
-                                    <th class="text-center py-1.5 px-1 w-6 text-gray-400 font-semibold" title="Drawn">D</th>
-                                    <th class="text-center py-1.5 px-1 w-6 text-red-400 font-semibold" title="Lost">L</th>
-                                    <th class="text-center py-1.5 px-1 w-7 text-gray-400 font-semibold" title="Goals For">GF</th>
-                                    <th class="text-center py-1.5 px-1 w-7 text-gray-400 font-semibold" title="Goals Against">GA</th>
-                                    <th class="text-center py-1.5 px-1 w-7 text-gray-400 font-semibold" title="Goal Difference">GD</th>
-                                    <th class="text-center py-1.5 px-2 w-8 text-yellow-500 font-bold" title="Points">Pts</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                `;
-                rows.forEach((team, i) => {
-                    const info = findTeam(team.name);
-                    const qualBar = i < 2 ? 'border-l-2 border-emerald-500' : i === 2 ? 'border-l-2 border-amber-500' : '';
-                    const gdTxt   = team.GD > 0 ? '+' + team.GD : String(team.GD);
-                    const gdColor = team.GD > 0 ? 'text-emerald-400' : team.GD < 0 ? 'text-red-400' : 'text-gray-400';
-                    html += `
-                        <tr class="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors ${qualBar}">
-                            <td class="text-center py-2 px-1 text-gray-500 font-mono">${i+1}</td>
-                            <td class="py-2 px-2">
-                                <div class="flex items-center gap-1.5">
-                                    <span style="font-size:13px;line-height:1;">${info.flag_icon}</span>
-                                    <span class="text-gray-200 font-medium truncate" style="max-width:90px;">${team.name}</span>
-                                </div>
-                            </td>
-                            <td class="text-center py-2 px-1 text-gray-300">${team.P}</td>
-                            <td class="text-center py-2 px-1 text-emerald-400 font-medium">${team.W}</td>
-                            <td class="text-center py-2 px-1 text-gray-400">${team.D}</td>
-                            <td class="text-center py-2 px-1 text-red-400">${team.L}</td>
-                            <td class="text-center py-2 px-1 text-gray-300">${team.GF}</td>
-                            <td class="text-center py-2 px-1 text-gray-300">${team.GA}</td>
-                            <td class="text-center py-2 px-1 ${gdColor} font-medium">${gdTxt}</td>
-                            <td class="text-center py-2 px-2 text-yellow-400 font-bold">${team.PTS}</td>
-                        </tr>
-                    `;
-                });
-                html += `
-                            </tbody>
-                        </table>
+                        <div class="gc-progress-track" style="border-radius:2px;">
+                            <div class="gc-progress-fill" style="width:${pct}%"></div>
                         </div>
-                        <div class="px-3 py-1.5 border-t border-gray-800 flex gap-4 text-[9px] text-gray-500 font-mono">
-                            <span class="flex items-center gap-1.5"><span class="inline-block w-0.5 h-3 bg-emerald-500 rounded-full"></span> Qualify (Top 2)</span>
-                            <span class="flex items-center gap-1.5"><span class="inline-block w-0.5 h-3 bg-amber-500 rounded-full"></span> Potential 3rd qualifier</span>
-                        </div>
+                    </div>
+
+                    <div class="gc-row gc-col-hdr">
+                        <span></span>
+                        <span style="text-align:left;">Team</span>
+                        <span title="Played">P</span>
+                        <span title="Win · Draw · Loss">W·D·L</span>
+                        <span title="Goals For · Goals Against">GF·GA</span>
+                        <span title="Goal Difference">GD</span>
+                        <span title="Points">Pts</span>
                     </div>`;
+
+                const qualClasses = ['gc-qualify-1','gc-qualify-2','gc-qualify-3','gc-qualify-4'];
+                rows.forEach((team, i) => {
+                    const info   = findTeam(team.name);
+                    const gdTxt  = team.GD > 0 ? '+' + team.GD : String(team.GD);
+                    const gdCls  = team.GD > 0 ? 'gc-gd-pos' : team.GD < 0 ? 'gc-gd-neg' : 'gc-gd-neu';
+                    const ptsCls = team.PTS === 0 ? 'gc-pts gc-pts-zero' : 'gc-pts';
+                    const posCls = i === 0 ? '#fbbf24' : i === 1 ? '#34d399' : i === 2 ? '#f59e0b' : '#4b5563';
+                    html += `
+                    <div class="gc-row gc-team-row ${qualClasses[i]}">
+                        <span class="gc-pos" style="color:${posCls}">${i+1}</span>
+                        <div style="display:flex;align-items:center;gap:6px;min-width:0;">
+                            <span style="font-size:14px;line-height:1;flex-shrink:0;">${info.flag_icon}</span>
+                            <span class="gc-name">${team.name}</span>
+                        </div>
+                        <span class="gc-num">${team.P}</span>
+                        <span class="gc-rec">${team.W}·${team.D}·${team.L}</span>
+                        <span class="gc-gfa">${team.GF}·${team.GA}</span>
+                        <span class="gc-gd ${gdCls}">${gdTxt}</span>
+                        <span class="${ptsCls}">${team.PTS}</span>
+                    </div>`;
+                });
+
+                html += `
+                    <div class="gc-legend">
+                        <span><span class="gc-legend-dot" style="background:#10b981"></span>Qualify (Top 2)</span>
+                        <span><span class="gc-legend-dot" style="background:#f59e0b"></span>Potential 3rd</span>
+                    </div>
+                </div>`;
+
                 container.innerHTML += html;
             });
         }
