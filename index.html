@@ -786,6 +786,27 @@
             });
         }
 
+        // ── localStorage persistence ───────────────────────────────────────────
+        const LS_KEY = 'wctracker_scores_2026';
+
+        function saveScoresToStorage() {
+            const scores = {};
+            matchFixtures.forEach((m, i) => { if (m.score?.ft) scores[i] = m.score.ft; });
+            try { localStorage.setItem(LS_KEY, JSON.stringify(scores)); } catch(e) {}
+        }
+
+        function loadScoresFromStorage() {
+            try {
+                const raw = localStorage.getItem(LS_KEY);
+                if (!raw) return;
+                const scores = JSON.parse(raw);
+                Object.entries(scores).forEach(([i, ft]) => {
+                    const idx = parseInt(i);
+                    if (matchFixtures[idx]) matchFixtures[idx].score = { ft: [ft[0], ft[1]] };
+                });
+            } catch(e) {}
+        }
+
         // ── Score update ───────────────────────────────────────────────────────
         function updateScore(index, teamIndex, val) {
             if (val === '') {
@@ -794,6 +815,7 @@
                 if (!matchFixtures[index].score) matchFixtures[index].score = {ft:[0,0]};
                 matchFixtures[index].score.ft[teamIndex] = parseInt(val, 10);
             }
+            saveScoresToStorage();
             // Standings are safe to re-render any time (no focused inputs there)
             renderGroups();
             if (document.getElementById('view-knockout').classList.contains('hidden')) {
@@ -809,6 +831,7 @@
         function resetAllScores() {
             if (!confirm('Clear all entered scores across every match? This cannot be undone.')) return;
             matchFixtures.forEach(m => { delete m.score; });
+            saveScoresToStorage();
             renderGroups();
             renderFixtures();
             renderKnockout();
@@ -844,6 +867,7 @@
                     const data = JSON.parse(evt.target.result);
                     if (Array.isArray(data)) {
                         matchFixtures = data;
+                        saveScoresToStorage();
                         renderGroups();
                         renderFixtures();
                         renderKnockout();
@@ -856,6 +880,7 @@
 
         // ── Boot ───────────────────────────────────────────────────────────────
         window.onload = function () {
+            loadScoresFromStorage();
             renderGroups();
             renderFixtures();
             renderKnockout();
