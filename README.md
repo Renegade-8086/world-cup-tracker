@@ -12,7 +12,7 @@ No sign-ups, no databases, and no tracking cookies—just pure football analytic
 
 ## ✨ Features
 
-* **Complete 48-Team Format:** Pre-loaded with the official 12-group setup (including South Korea, Czechia, and New Zealand).
+* **Complete 48-Team Format:** Pre-loaded with the official 12-group setup
 * **Live Standings Engine:** Group tables dynamically calculate Points, Goal Difference (GD), and Goals For (GF) in real-time as you enter match scores.
 * **Smart Knockout Tree:** Dynamically routes group winners, runners-up, and selected 3rd-place wildcards directly into the Round of 32 all the way to the Final.
 * **Persistent Auto-Save:** Powered by local browser storage. Accidentally close your tab? Your bracket progress stays exactly where you left it.
