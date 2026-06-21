@@ -44,3 +44,14 @@ Simply visit the GitHub Pages link generated for this repository:
 
 ## 🔄 Resetting Data
 If your predictions go completely off the rails or you want to start a brand new simulation, simply click the **🔄 Reset Tournament** button in the header to safely wipe the cache and refresh the bracket.
+
+## 📊 Current Tournament Scores (Up to Date!)
+
+Want to skip manually typing in the scores of the matches that have already been played? 
+
+1. Right-click this link: [Download Current Scores File (current_scores.json)](./current_scores.json) and choose **"Save Link As..."** to save the file to your device.
+2. Open the live tracker app link.
+3. Click the **📤 Import Data** button in the header.
+4. Select the `current_scores.json` file you just downloaded. 
+
+*Boom! Your bracket will instantly sync up with all real-world scores up to today.*
