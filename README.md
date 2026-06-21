@@ -26,7 +26,7 @@ Since this app is built purely using static HTML, CSS, and vanilla JavaScript, t
 
 ### 1. View It Live Online
 Simply visit the GitHub Pages link generated for this repository:
-`https://<your-username>.github.io/<your-repository-name>/`
+`https://renegade-8086.github.io/world-cup-tracker/`
 
 ### 2. Run Locally
 1. Download or clone this repository.
