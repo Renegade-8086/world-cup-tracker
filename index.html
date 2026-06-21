@@ -174,7 +174,7 @@
             {"name":"Mexico","continent":"North America","flag_icon":"🇲🇽","fifa_code":"MEX","group":"A"},
             {"name":"South Africa","continent":"Africa","flag_icon":"🇿🇦","fifa_code":"RSA","group":"A"},
             {"name":"South Korea","continent":"Asia","flag_icon":"🇰🇷","fifa_code":"KOR","group":"A"},
-            {"name":"Czech Republic","continent":"Europe","flag_icon":"🇨🇿","fifa_code":"CZE","group":"A"},
+            {"name":"Czechia","continent":"Europe","flag_icon":"🇨🇿","fifa_code":"CZE","group":"A"},
             {"name":"Canada","continent":"North America","flag_icon":"🇨🇦","fifa_code":"CAN","group":"B"},
             {"name":"Bosnia & Herzegovina","continent":"Europe","flag_icon":"🇧🇦","fifa_code":"BIH","group":"B"},
             {"name":"Qatar","continent":"Asia","flag_icon":"🇶🇦","fifa_code":"QAT","group":"B"},
@@ -222,7 +222,7 @@
         ];
 
         const groupData = {"groups":[
-            {"name":"Group A","teams":["Mexico","South Africa","South Korea","Czech Republic"]},
+            {"name":"Group A","teams":["Mexico","South Africa","South Korea","Czechia"]},
             {"name":"Group B","teams":["Canada","Bosnia & Herzegovina","Qatar","Switzerland"]},
             {"name":"Group C","teams":["Brazil","Morocco","Haiti","Scotland"]},
             {"name":"Group D","teams":["USA","Paraguay","Australia","Turkey"]},
@@ -239,10 +239,10 @@
         let matchFixtures = [
             // Group A
             {"round":"Matchday 1","date":"2026-06-11","time":"13:00 UTC-6","team1":"Mexico","team2":"South Africa","score":{"ft":[2,0]},"group":"Group A","ground":"Mexico City"},
-            {"round":"Matchday 1","date":"2026-06-11","time":"20:00 UTC-6","team1":"South Korea","team2":"Czech Republic","score":{"ft":[2,1]},"group":"Group A","ground":"Guadalajara"},
-            {"round":"Matchday 8","date":"2026-06-18","time":"12:00 UTC-4","team1":"Czech Republic","team2":"South Africa","score":{"ft":[1,1]},"group":"Group A","ground":"Atlanta"},
+            {"round":"Matchday 1","date":"2026-06-11","time":"20:00 UTC-6","team1":"South Korea","team2":"Czechia","score":{"ft":[2,1]},"group":"Group A","ground":"Guadalajara"},
+            {"round":"Matchday 8","date":"2026-06-18","time":"12:00 UTC-4","team1":"Czechia","team2":"South Africa","score":{"ft":[1,1]},"group":"Group A","ground":"Atlanta"},
             {"round":"Matchday 8","date":"2026-06-18","time":"19:00 UTC-6","team1":"Mexico","team2":"South Korea","score":{"ft":[1,0]},"group":"Group A","ground":"Guadalajara"},
-            {"round":"Matchday 14","date":"2026-06-24","time":"19:00 UTC-6","team1":"Czech Republic","team2":"Mexico","group":"Group A","ground":"Mexico City"},
+            {"round":"Matchday 14","date":"2026-06-24","time":"19:00 UTC-6","team1":"Czechia","team2":"Mexico","group":"Group A","ground":"Mexico City"},
             {"round":"Matchday 14","date":"2026-06-24","time":"19:00 UTC-6","team1":"South Africa","team2":"South Korea","group":"Group A","ground":"Monterrey"},
             // Group B
             {"round":"Matchday 2","date":"2026-06-12","time":"15:00 UTC-4","team1":"Canada","team2":"Bosnia & Herzegovina","score":{"ft":[1,1]},"group":"Group B","ground":"Toronto"},
@@ -955,7 +955,7 @@
             'United States':'USA','United States of America':'USA',
             'Bosnia-Herzegovina':'Bosnia & Herzegovina','Bosnia and Herzegovina':'Bosnia & Herzegovina',
             'Cabo Verde':'Cape Verde','Saudi Arabia':'Saudi Arabia',
-            'Czechia':'Czech Republic','Czech Rep.':'Czech Republic','Czech Rep':'Czech Republic',
+            'Czechia':'Czechia','Czech Rep.':'Czechia','Czech Rep':'Czechia',
         };
 
         function normalizeTeamName(raw) {
